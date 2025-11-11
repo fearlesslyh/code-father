@@ -2,6 +2,13 @@
 import { RouterView } from 'vue-router'
 import GlobalHeader from '@/components/GlobalHeader.vue'
 import GlobalFooter from '@/components/GlobalFooter.vue'
+import {healthCheck} from '@/api/codeMother/healthController'
+
+healthCheck().then(res=>{
+
+  console.log('healthCheck',res)
+
+})
 </script>
 
 <template>

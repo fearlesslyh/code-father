@@ -39,11 +39,7 @@ const handleLoginClick = () => {
 <template>
   <div class="global-header">
     <div class="global-header__left" @click="() => router.push('/')">
-      <img
-        src="/logo.png"
-        alt="凌犀零代码平台"
-        class="global-header__logo"
-      />
+      <img src="/logo.png" alt="凌犀零代码平台" class="global-header__logo" />
       <span class="global-header__title">凌犀零代码平台</span>
     </div>
     <div class="global-header__center">
