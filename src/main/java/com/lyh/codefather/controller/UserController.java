@@ -163,5 +163,49 @@ public class UserController {
         return ResultUtils.success(userVOPage);
     }
 
+    /**
+     * 更新个人资料
+     */
+    @PostMapping("/update/my")
+    public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyProfileRequest userUpdateMyRequest, HttpServletRequest request) {
+        if (userUpdateMyRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        // 创建更新对象
+        User user = new User();
+        user.setId(loginUser.getId());
+        // 更新基本信息
+        if (userUpdateMyRequest.getUserName() != null) {
+            user.setUserName(userUpdateMyRequest.getUserName());
+        }
+        if (userUpdateMyRequest.getUserAvatar() != null) {
+            user.setUserAvatar(userUpdateMyRequest.getUserAvatar());
+        }
+        if (userUpdateMyRequest.getUserProfile() != null) {
+            user.setUserProfile(userUpdateMyRequest.getUserProfile());
+        }
+        // 处理密码更新
+        if (userUpdateMyRequest.getNewPassword() != null && !userUpdateMyRequest.getNewPassword().isEmpty()) {
+            // 验证当前密码
+            if (userUpdateMyRequest.getCurrentPassword() == null || userUpdateMyRequest.getCurrentPassword().isEmpty()) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "请输入当前密码");
+            }
+            // 验证新密码和确认密码
+            if (!userUpdateMyRequest.getNewPassword().equals(userUpdateMyRequest.getCheckNewPassword())) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的新密码不一致");
+            }
+            // 设置新密码
+            user.setUserPassword(userService.getEncryptPassword(userUpdateMyRequest.getNewPassword()));
+        }
+        // 执行更新
+        boolean result = userService.updateById(user);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
 
 }
