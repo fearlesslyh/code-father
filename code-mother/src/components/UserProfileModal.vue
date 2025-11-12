@@ -99,9 +99,8 @@ const handleSubmit = async () => {
     }
 
     const response = await updateUser(updateData)
-    const parsed = response as BaseResponseBoolean
 
-    if (parsed.code === 0 && parsed.data) {
+    if (response.data) {
       message.success('个人信息更新成功')
       
       // 更新本地用户信息（保持登录状态）
@@ -118,7 +117,7 @@ const handleSubmit = async () => {
       emit('success')
       handleCancel()
     } else {
-      message.error(parsed.message || '更新失败')
+      message.error(response.message || '更新失败')
     }
   } catch (error) {
     if (error instanceof Error && error.message) {
