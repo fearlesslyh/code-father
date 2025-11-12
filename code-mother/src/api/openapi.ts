@@ -1,21 +1,32 @@
 import type { AxiosRequestConfig } from 'axios'
 import { request } from './index'
 
-export interface OpenApiGeneratorOptions {
-  signal?: AbortSignal
+export interface OpenApiGeneratorOptions extends AxiosRequestConfig {
   showErrorMessage?: boolean
 }
 
+const normalizeConfig = (
+  config: string | AxiosRequestConfig,
+  options?: OpenApiGeneratorOptions,
+): AxiosRequestConfig => {
+  const baseConfig: AxiosRequestConfig = typeof config === 'string' ? { url: config } : config
+  const mergedConfig: OpenApiGeneratorOptions = {
+    ...baseConfig,
+    ...(options ?? {}),
+  }
+  const { showErrorMessage: _showErrorMessage, ...axiosConfig } = mergedConfig
+
+  if (typeof axiosConfig.url === 'string' && !axiosConfig.url.startsWith('/')) {
+    axiosConfig.url = `/${axiosConfig.url}`
+  }
+
+  return axiosConfig
+}
+
 export const createOpenApiRequest = <T>(
-  config: AxiosRequestConfig,
+  config: string | AxiosRequestConfig,
   options?: OpenApiGeneratorOptions,
 ): Promise<T> => {
-  const mergedConfig: AxiosRequestConfig = {
-    ...config,
-    signal: options?.signal,
-  }
-  return request<T>({
-    ...mergedConfig,
-    ...(options?.showErrorMessage === false ? { showErrorMessage: false } : {}),
-  })
+  const finalConfig = normalizeConfig(config, options)
+  return request<T>(finalConfig)
 }

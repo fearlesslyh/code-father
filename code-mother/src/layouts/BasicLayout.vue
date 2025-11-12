@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { onMounted } from 'vue'
+import { RouterView, useRouter } from 'vue-router'
 import GlobalHeader from '@/components/GlobalHeader.vue'
 import GlobalFooter from '@/components/GlobalFooter.vue'
-import {healthCheck} from '@/api/codeMother/healthController'
+import { useLoginUserStore } from '@/stores/loginUser'
 
-healthCheck().then(res=>{
+const router = useRouter()
+const loginUserStore = useLoginUserStore()
 
-  console.log('healthCheck',res)
-
+onMounted(async () => {
+  const loggedIn = await loginUserStore.fetchLoginUser()
+  if (!loggedIn) {
+    router.replace('/user/login')
+    return
+  }
+  await loginUserStore.updateHeartbeat()
 })
 </script>
 

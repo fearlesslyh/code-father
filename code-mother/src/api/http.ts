@@ -15,7 +15,7 @@ export interface ApiErrorResponse {
   data?: unknown;
 }
 
-const API_BASE_URL = 'http://localhost:8123/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
 const REQUEST_TIMEOUT = 10000;
 const AUTH_TOKEN_STORAGE_KEY = 'codeFatherAuthToken';
 const SUCCESS_CODE = 0;
@@ -56,7 +56,7 @@ const transformResponse = <T>(response: AxiosResponse<ApiSuccessResponse<T> | Ap
   }
 
   if (body.code === SUCCESS_CODE) {
-    return (body as ApiSuccessResponse<T>).data;
+    return body as T;
   }
 
   if (AUTH_ERROR_CODES.has(body.code)) {
@@ -65,7 +65,7 @@ const transformResponse = <T>(response: AxiosResponse<ApiSuccessResponse<T> | Ap
     message.error(body.message || '请求失败');
   }
 
-  throw body;
+  throw body as ApiErrorResponse;
 };
 
 const createHttpClient = (): AxiosInstance => {
@@ -84,6 +84,9 @@ const createHttpClient = (): AxiosInstance => {
       if (token) {
         config.headers = config.headers ?? {};
         config.headers.Authorization = `Bearer ${token}`;
+      }
+      if (config.url && config.url.startsWith('/')) {
+        config.url = config.url.replace(/\/+/g, '/');
       }
       return config;
     },
