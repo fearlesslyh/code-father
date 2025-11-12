@@ -58,7 +58,7 @@ const handleSubmit = async () => {
     message.success('登录成功')
     const redirect = (router.currentRoute.value.query.redirect as string) ?? '/'
     await router.replace(redirect)
-    
+
     // 管理员登录后刷新页面以确保所有权限生效
     if (parsed.data.userRole === 'admin') {
       setTimeout(() => {
@@ -88,39 +88,43 @@ const goRegister = () => {
           <h2 class="auth-title">登录凌犀零代码平台</h2>
           <div class="auth-subtitle">欢迎回来，开启零代码开发之旅</div>
         </div>
-        
-        <a-form 
-          ref="formRef" 
-          :model="formState" 
-          :rules="rules" 
-          layout="vertical" 
+
+        <a-form
+          ref="formRef"
+          :model="formState"
+          :rules="rules"
+          layout="vertical"
           @finish="handleSubmit"
           class="auth-form"
         >
           <a-form-item label="账号" name="userAccount" class="tech-form-item">
-            <a-input 
-              v-model:value="formState.userAccount" 
-              placeholder="请输入账号" 
-              allow-clear 
-              size="large"
-              class="tech-input"
-            />
+            <span class="tech-input-wrapper">
+              <a-input
+                v-model:value="formState.userAccount"
+                placeholder="请输入账号"
+                allow-clear
+                size="large"
+                class="tech-input"
+              />
+            </span>
           </a-form-item>
-          
+
           <a-form-item label="密码" name="userPassword" class="tech-form-item">
-            <a-input-password 
-              v-model:value="formState.userPassword" 
-              placeholder="请输入密码" 
-              allow-clear 
-              size="large"
-              class="tech-input"
-            />
+            <span class="tech-input-wrapper">
+              <a-input-password
+                v-model:value="formState.userPassword"
+                placeholder="请输入密码"
+                allow-clear
+                size="large"
+                class="tech-input"
+              />
+            </span>
           </a-form-item>
-          
-          <a-button 
-            type="primary" 
-            html-type="submit" 
-            block 
+
+          <a-button
+            type="primary"
+            html-type="submit"
+            block
             :loading="loading"
             size="large"
             class="tech-button auth-submit-btn"
@@ -129,7 +133,7 @@ const goRegister = () => {
             <span v-else>登录中...</span>
           </a-button>
         </a-form>
-        
+
         <div class="auth-extra">
           <span class="extra-text">如果未注册，请先</span>
           <a @click.prevent="goRegister" class="tech-link">注册账号</a>
@@ -215,7 +219,7 @@ const goRegister = () => {
   box-shadow: 0 0 14px rgba(255, 107, 107, 0.3);
 }
 
-/* 表单控件样式 */
+/* 表单控件样式 - 与span元素保持一致 */
 .tech-input,
 .tech-input .ant-input,
 .tech-input .ant-input-affix-wrapper,
@@ -225,8 +229,22 @@ const goRegister = () => {
   border-radius: var(--radius-md);
   color: var(--text-primary);
   transition: all var(--transition-normal);
-  height: 48px;
-  font-size: 15px;
+  height: 44px;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 8px 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 大尺寸输入框与span元素保持一致 */
+.tech-input .ant-input-lg,
+.tech-input .ant-input-affix-wrapper-lg,
+.tech-input .ant-input-password-lg {
+  height: 44px;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 8px 12px;
 }
 
 .tech-input .ant-input::placeholder,
@@ -278,19 +296,19 @@ const goRegister = () => {
   .auth-container {
     padding: var(--spacing-md);
   }
-  
+
   .auth-card {
     padding: var(--spacing-lg);
   }
-  
+
   .auth-icon {
     font-size: 40px;
   }
-  
+
   .auth-title {
     font-size: 20px;
   }
-  
+
   .auth-subtitle {
     font-size: 13px;
   }
@@ -300,25 +318,25 @@ const goRegister = () => {
   .auth-container {
     padding: var(--spacing-sm);
   }
-  
+
   .auth-card {
     padding: var(--spacing-md);
     max-width: none;
   }
-  
+
   .auth-icon {
     font-size: 36px;
   }
-  
+
   .auth-title {
     font-size: 18px;
   }
-  
+
   .auth-submit-btn {
     height: 44px;
     font-size: 15px;
   }
-  
+
   .auth-extra {
     font-size: 13px;
   }

@@ -173,19 +173,23 @@ const handleCancel = () => {
       class="profile-form"
     >
       <a-form-item label="用户名" name="userName">
-        <a-input 
-          v-model:value="formState.userName" 
-          placeholder="请输入用户名"
-          size="large"
-        />
+        <span class="tech-input-wrapper">
+          <a-input 
+            v-model:value="formState.userName" 
+            placeholder="请输入用户名"
+            size="large"
+          />
+        </span>
       </a-form-item>
 
       <a-form-item label="头像URL" name="userAvatar">
-        <a-input 
-          v-model:value="formState.userAvatar" 
-          placeholder="请输入头像图片URL"
-          size="large"
-        />
+        <span class="tech-input-wrapper">
+          <a-input 
+            v-model:value="formState.userAvatar" 
+            placeholder="请输入头像图片URL"
+            size="large"
+          />
+        </span>
         <div v-if="formState.userAvatar" class="avatar-preview">
           <a-avatar :src="formState.userAvatar" :size="64">
             {{ formState.userName?.charAt(0) }}
@@ -194,32 +198,38 @@ const handleCancel = () => {
       </a-form-item>
 
       <a-form-item label="个人简介" name="userProfile">
-        <a-textarea
-          v-model:value="formState.userProfile"
-          placeholder="请输入个人简介（可选）"
-          :rows="4"
-          :maxlength="200"
-          show-count
-          size="large"
-        />
+        <span class="tech-input-wrapper">
+          <a-textarea
+            v-model:value="formState.userProfile"
+            placeholder="请输入个人简介（可选）"
+            :rows="4"
+            :maxlength="200"
+            show-count
+            size="large"
+          />
+        </span>
       </a-form-item>
 
       <a-divider>修改密码（可选）</a-divider>
 
       <a-form-item label="新密码" name="newPassword">
-        <a-input-password
-          v-model:value="formState.newPassword"
-          placeholder="如需修改密码请输入新密码（至少8位）"
-          size="large"
-        />
+        <span class="tech-input-wrapper">
+          <a-input-password
+            v-model:value="formState.newPassword"
+            placeholder="如需修改密码请输入新密码（至少8位）"
+            size="large"
+          />
+        </span>
       </a-form-item>
 
       <a-form-item label="确认新密码" name="confirmPassword">
-        <a-input-password
-          v-model:value="formState.confirmPassword"
-          placeholder="请再次输入新密码"
-          size="large"
-        />
+        <span class="tech-input-wrapper">
+          <a-input-password
+            v-model:value="formState.confirmPassword"
+            placeholder="请再次输入新密码"
+            size="large"
+          />
+        </span>
       </a-form-item>
     </a-form>
   </a-modal>

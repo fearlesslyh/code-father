@@ -56,28 +56,33 @@ import { GithubOutlined } from '@ant-design/icons-vue'
   max-width: 1400px;
   margin: 0 auto;
   padding: var(--spacing-lg);
+  border-radius: 0;
 }
 
 .footer-content {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-md);
   margin-bottom: var(--spacing-md);
 }
 
-/* 左侧品牌信息 */
+/* 品牌信息 - 居中布局 */
 .footer-left {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--spacing-sm);
+  width: 100%;
 }
 
 .brand-info {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .brand-text {
@@ -125,28 +130,32 @@ import { GithubOutlined } from '@ant-design/icons-vue'
   transform: translateY(-1px);
 }
 
-/* 右侧社交链接 */
+/* 右侧社交链接 - 水平居中 */
 .footer-right {
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .social-links {
   display: flex;
-  gap: var(--spacing-md);
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
 }
 
 .social-link {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
   background: var(--bg-glass-light);
   border: 1px solid var(--border-primary);
-  border-radius: var(--radius-lg);
+  border-radius: 0;
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: var(--font-weight-medium);
   transition: all var(--transition-normal);
   position: relative;
@@ -177,7 +186,7 @@ import { GithubOutlined } from '@ant-design/icons-vue'
 .github-link:hover {
   color: #78dbff;
   border-color: #78dbff;
-  box-shadow: 0 0 20px rgba(120, 219, 255, 0.4);
+  box-shadow: 0 0 15px rgba(120, 219, 255, 0.3);
 }
 
 .link-text {

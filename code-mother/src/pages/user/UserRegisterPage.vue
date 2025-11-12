@@ -95,33 +95,39 @@ const goLogin = () => {
           class="auth-form"
         >
           <a-form-item label="账号" name="userAccount" class="tech-form-item">
-            <a-input 
-              v-model:value="formState.userAccount" 
-              placeholder="请输入账号" 
-              allow-clear 
-              size="large"
-              class="tech-input"
-            />
+            <span class="tech-input-wrapper">
+              <a-input 
+                v-model:value="formState.userAccount" 
+                placeholder="请输入账号" 
+                allow-clear 
+                size="large"
+                class="tech-input"
+              />
+            </span>
           </a-form-item>
           
           <a-form-item label="密码" name="userPassword" class="tech-form-item">
-            <a-input-password 
-              v-model:value="formState.userPassword" 
-              placeholder="请输入密码" 
-              allow-clear 
-              size="large"
-              class="tech-input"
-            />
+            <span class="tech-input-wrapper">
+              <a-input-password 
+                v-model:value="formState.userPassword" 
+                placeholder="请输入密码" 
+                allow-clear 
+                size="large"
+                class="tech-input"
+              />
+            </span>
           </a-form-item>
           
           <a-form-item label="确认密码" name="checkPassword" class="tech-form-item">
-            <a-input-password 
-              v-model:value="formState.checkPassword" 
-              placeholder="请再次输入密码" 
-              allow-clear 
-              size="large"
-              class="tech-input"
-            />
+            <span class="tech-input-wrapper">
+              <a-input-password 
+                v-model:value="formState.checkPassword" 
+                placeholder="请再次输入密码" 
+                allow-clear 
+                size="large"
+                class="tech-input"
+              />
+            </span>
           </a-form-item>
           
           <a-button 
@@ -222,7 +228,7 @@ const goLogin = () => {
   box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
 }
 
-/* 表单控件样式 */
+/* 表单控件样式 - 与span元素保持一致 */
 .tech-input,
 .tech-input .ant-input,
 .tech-input .ant-input-affix-wrapper,
@@ -232,8 +238,22 @@ const goLogin = () => {
   border-radius: var(--radius-md);
   color: var(--text-primary);
   transition: all var(--transition-normal);
-  height: 48px;
-  font-size: 15px;
+  height: 44px;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 8px 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 大尺寸输入框与span元素保持一致 */
+.tech-input .ant-input-lg,
+.tech-input .ant-input-affix-wrapper-lg,
+.tech-input .ant-input-password-lg {
+  height: 44px;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 8px 12px;
 }
 
 .tech-input .ant-input::placeholder,

@@ -124,6 +124,7 @@ export type UserUpdateRequest = {
   userAvatar?: string;
   userProfile?: string;
   userRole?: string;
+  userPassword?: string;
 };
 
 export type UserVO = {

@@ -758,18 +758,44 @@ const handleEditCancel = () => {
 
 .user-manage-page :deep(.ant-table-tbody > tr) {
   border-bottom: 1px solid rgba(120, 119, 198, 0.1);
-  transition: all 0.3s ease;
-}
-
-.user-manage-page :deep(.ant-table-tbody > tr:hover) {
-  background: transparent;
-  transform: none;
 }
 
 .user-manage-page :deep(.ant-table-tbody > tr > td) {
   border-bottom: none;
   color: rgba(255, 255, 255, 0.9);
   padding: 16px;
+}
+
+/* 永久取消所有悬停效果 */
+.user-manage-page :deep(.ant-table-tbody > tr:hover) {
+  background: transparent !important;
+  transform: none !important;
+}
+
+.user-manage-page :deep(.ant-table-cell) {
+  background: transparent !important;
+}
+
+.user-manage-page :deep(.ant-table-cell:hover) {
+  background: transparent !important;
+}
+
+/* 夜间模式取消悬停效果 */
+[data-theme='dark'] .user-manage-page :deep(.ant-table-tbody > tr:hover) {
+  background: transparent !important;
+}
+
+[data-theme='dark'] .user-manage-page :deep(.ant-table-cell:hover) {
+  background: transparent !important;
+}
+
+/* 白天模式取消悬停效果 */
+[data-theme='light'] .user-manage-page :deep(.ant-table-tbody > tr:hover) {
+  background: transparent !important;
+}
+
+[data-theme='light'] .user-manage-page :deep(.ant-table-cell:hover) {
+  background: transparent !important;
 }
 
 .user-manage-page :deep(.ant-table-pagination) {
