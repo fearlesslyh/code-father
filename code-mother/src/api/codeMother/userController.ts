@@ -13,14 +13,15 @@ import type {
   BaseResponsePageUserVO,
   UserLoginRequest,
   UserRegisterRequest,
-  UserUpdateRequest
+  UserUpdateRequest,
+  UserUpdateMyProfileRequest
 } from './typings';
 
 /**
  * 添加用户
- * @param body 
- * @param options 
- * @returns 
+ * @param body
+ * @param options
+ * @returns
  */
 export async function addUser(body: UserAddRequest,
   options ?: OpenApiGeneratorOptions
@@ -38,9 +39,9 @@ export async function addUser(body: UserAddRequest,
 
 /**
  * 删除用户
- * @param body 
- * @param options 
- * @returns 
+ * @param body
+ * @param options
+ * @returns
  */
 export async function deleteUser(body: DeleteRequest,
   options ?: OpenApiGeneratorOptions
@@ -58,10 +59,10 @@ export async function deleteUser(body: DeleteRequest,
 
 /**
  * 根据id获取用户
- * @param params 
- * @param getParams 
- * @param options 
- * @returns 
+ * @param params
+ * @param getParams
+ * @param options
+ * @returns
  */
 export async function getUserById(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
@@ -80,8 +81,8 @@ export async function getUserById(
 
 /**
  * 获取当前登录用户
- * @param options 
- * @returns 
+ * @param options
+ * @returns
  */
 export async function getLoginUser(
   options ?: OpenApiGeneratorOptions
@@ -95,10 +96,10 @@ export async function getLoginUser(
 
 /**
  * 根据id获取用户详情
- * @param params 
- * @param getParams 
- * @param options 
- * @returns 
+ * @param params
+ * @param getParams
+ * @param options
+ * @returns
  */
 export async function getUserVOById(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
@@ -115,9 +116,9 @@ export async function getUserVOById(
 }
 /**
  * 分页查询用户列表
- * @param body 
- * @param options 
- * @returns 
+ * @param body
+ * @param options
+ * @returns
  */
 export async function listUserVOByPage(body: UserQueryRequest,
   options ?: OpenApiGeneratorOptions
@@ -132,12 +133,12 @@ export async function listUserVOByPage(body: UserQueryRequest,
     ...(options || {}),
   });
 }
- 
+
 /**
  * 用户登录
- * @param body 
- * @param options 
- * @returns 
+ * @param body
+ * @param options
+ * @returns
  */
 export async function userLogin(body: UserLoginRequest,
   options ?: OpenApiGeneratorOptions
@@ -155,8 +156,8 @@ export async function userLogin(body: UserLoginRequest,
 
 /**
  *  用户登出
- * @param options 
- * @returns 
+ * @param options
+ * @returns
  */
 export async function userLogout(
   options ?: OpenApiGeneratorOptions
@@ -170,9 +171,9 @@ export async function userLogout(
 
 /**
  * 用户注册
- * @param body 
- * @param options 
- * @returns 
+ * @param body
+ * @param options
+ * @returns
  */
 export async function userRegister(body: UserRegisterRequest,
   options ?: OpenApiGeneratorOptions
@@ -190,9 +191,9 @@ export async function userRegister(body: UserRegisterRequest,
 
 /**
  * 更新用户
- * @param body 
- * @param options 
- * @returns 
+ * @param body
+ * @param options
+ * @returns
  */
 export async function updateUser(body: UserUpdateRequest,
   options ?: OpenApiGeneratorOptions
@@ -206,5 +207,18 @@ export async function updateUser(body: UserUpdateRequest,
     data: body,
     ...(options || {}),
   });
-}
+  }
 
+  export async function updateMyUser(
+    body: UserUpdateMyProfileRequest,
+    options?: OpenApiGeneratorOptions
+  ) {
+    return request<BaseResponseBoolean>('/user/update/my', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: body,
+      ...(options || {}),
+    });
+  }

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue'
 import { message } from 'ant-design-vue'
-import { updateUser } from '@/api/codeMother/userController'
-import type { UserUpdateRequest, BaseResponseBoolean } from '@/api/codeMother/typings'
+import { updateMyUser } from '@/api/codeMother/userController'
+import type { UserUpdateMyProfileRequest } from '@/api/codeMother/typings'
 import { useLoginUserStore } from '@/stores/loginUser'
 
 const props = defineProps<{
@@ -19,7 +19,7 @@ const formRef = ref()
 const loading = ref(false)
 
 // 表单数据
-const formState = reactive<UserUpdateRequest & { 
+const formState = reactive<UserUpdateMyProfileRequest & {
   id: number
   currentPassword?: string
   newPassword?: string
@@ -91,18 +91,17 @@ const handleSubmit = async () => {
     loading.value = true
 
     // 构建更新数据
-    const updateData: UserUpdateRequest = {
-      id: formState.id,
+    const updateData: UserUpdateMyProfileRequest = {
       userName: formState.userName,
       userAvatar: formState.userAvatar,
       userProfile: formState.userProfile,
     }
 
-    const response = await updateUser(updateData)
+    const response = await updateMyUser(updateData)
 
     if (response.data) {
       message.success('个人信息更新成功')
-      
+
       // 更新本地用户信息（保持登录状态）
       const currentUser = loginUserStore.userState.user
       if (currentUser) {
@@ -113,7 +112,7 @@ const handleSubmit = async () => {
           userRole: currentUser.userRole, // 保持原有角色
         })
       }
-      
+
       emit('success')
       handleCancel()
     } else {
@@ -173,8 +172,8 @@ const handleCancel = () => {
     >
       <a-form-item label="用户名" name="userName">
         <span class="tech-input-wrapper">
-          <a-input 
-            v-model:value="formState.userName" 
+          <a-input
+            v-model:value="formState.userName"
             placeholder="请输入用户名"
             size="large"
           />
@@ -183,8 +182,8 @@ const handleCancel = () => {
 
       <a-form-item label="头像URL" name="userAvatar">
         <span class="tech-input-wrapper">
-          <a-input 
-            v-model:value="formState.userAvatar" 
+          <a-input
+            v-model:value="formState.userAvatar"
             placeholder="请输入头像图片URL"
             size="large"
           />

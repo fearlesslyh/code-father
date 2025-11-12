@@ -141,5 +141,14 @@ export type OpenApiGeneratorOptions = {
   axios?: unknown,
   mock?: boolean,
   mockData?: unknown
-}
+};
+
+export type UserUpdateMyProfileRequest = {
+  userName?: string
+  userAvatar?: string
+  userProfile?: string
+  currentPassword?: string
+  newPassword?: string
+  checkNewPassword?: string
+};
 
