@@ -11,7 +11,7 @@ const router = createRouter({
       name: '主页',
       component: HomePage,
       meta: {
-        requiresAuth: true,
+        requiresAuth: false, // 所有用户均可访问
       },
     },
     {
@@ -19,7 +19,7 @@ const router = createRouter({
       name: 'about',
       component: () => import('../pages/AboutPage.vue'),
       meta: {
-        requiresAuth: true,
+        requiresAuth: false, // 所有用户均可访问
       },
     },
     {
@@ -38,28 +38,46 @@ const router = createRouter({
       component: UserManagePage,
       meta: {
         requiresAuth: true,
+        requiresAdmin: true, // 需要管理员权限
       },
+    },
+    {
+      path: '/noAuth',
+      name: '无权限',
+      component: () => import('@/pages/NoAuthPage.vue'),
     },
   ],
 })
 
 router.beforeEach(async (to, _from, next) => {
+  const { useLoginUserStore } = await import('@/stores/loginUser')
+  const loginUserStore = useLoginUserStore()
+
+  // 对于不需要认证的页面，直接放行
   const requiresAuth = to.meta.requiresAuth === true
   if (!requiresAuth) {
     next()
     return
   }
-  const { useLoginUserStore } = await import('@/stores/loginUser')
-  const loginUserStore = useLoginUserStore()
+
+  // 检查用户登录状态
   const loggedIn = await loginUserStore.fetchLoginUser()
   if (!loggedIn) {
     next({ path: '/user/login', query: { redirect: to.fullPath } })
     return
   }
-  if (to.path === '/user/login') {
-    next({ path: to.query.redirect?.toString() ?? '/' })
-    return
+
+  // 检查是否需要管理员权限
+  const requiresAdmin = to.meta.requiresAdmin === true
+  if (requiresAdmin) {
+    const userRole = loginUserStore.userState.user?.userRole
+    if (userRole !== 'admin') {
+      // 普通用户访问管理员页面，跳转到无权限页面
+      next('/noAuth')
+      return
+    }
   }
+
   next()
 })
 

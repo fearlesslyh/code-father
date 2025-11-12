@@ -10,6 +10,7 @@ interface LoginUser {
   id: string
   nickname: string
   avatar?: string
+  userRole?: string
 }
 
 interface LoginUserState {
@@ -73,6 +74,7 @@ export const useLoginUserStore = defineStore('loginUser', () => {
         id: String(data.id ?? ''),
         nickname: data.userName ?? data.userAccount ?? '未命名用户',
         avatar: data.userAvatar,
+        userRole: data.userRole,
       })
       return true
     } catch (error) {

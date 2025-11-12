@@ -1,8 +1,27 @@
-// @ts-ignore
-/* eslint-disable */
 import { createOpenApiRequest as request } from '@/api/openapi';
+import type {
+  UserAddRequest,
+  OpenApiGeneratorOptions,
+  BaseResponseLong,
+  DeleteRequest,
+  BaseResponseBoolean,
+  getParams,
+  BaseResponseUser,
+  BaseResponseLoginUserVO,
+  BaseResponseUserVO,
+  UserQueryRequest,
+  BaseResponsePageUserVO,
+  UserLoginRequest,
+  UserRegisterRequest,
+  UserUpdateRequest
+} from './typings';
 
-/** 此处后端没有提供注释 POST /user/add */
+/**
+ * 添加用户
+ * @param body 
+ * @param options 
+ * @returns 
+ */
 export async function addUser(body: UserAddRequest,
   options ?: OpenApiGeneratorOptions
 ) {
@@ -17,7 +36,12 @@ export async function addUser(body: UserAddRequest,
   });
 }
 
-/** 此处后端没有提供注释 POST /user/delete */
+/**
+ * 删除用户
+ * @param body 
+ * @param options 
+ * @returns 
+ */
 export async function deleteUser(body: DeleteRequest,
   options ?: OpenApiGeneratorOptions
 ) {
@@ -32,11 +56,16 @@ export async function deleteUser(body: DeleteRequest,
   });
 }
 
-/** 此处后端没有提供注释 GET /user/get */
+/**
+ * 根据id获取用户
+ * @param params 
+ * @param getParams 
+ * @param options 
+ * @returns 
+ */
 export async function getUserById(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: false.getParams
-    ,
+  params: getParams,
   options ?: OpenApiGeneratorOptions
 ) {
   return request<BaseResponseUser>({
@@ -48,7 +77,12 @@ export async function getUserById(
   });
 }
 
-/** 此处后端没有提供注释 GET /user/get/login */
+
+/**
+ * 获取当前登录用户
+ * @param options 
+ * @returns 
+ */
 export async function getLoginUser(
   options ?: OpenApiGeneratorOptions
 ) {
@@ -59,11 +93,16 @@ export async function getLoginUser(
   });
 }
 
-/** 此处后端没有提供注释 GET /user/get/vo */
+/**
+ * 根据id获取用户详情
+ * @param params 
+ * @param getParams 
+ * @param options 
+ * @returns 
+ */
 export async function getUserVOById(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: false.getParams
-    ,
+  params: getParams,
   options ?: OpenApiGeneratorOptions
 ) {
   return request<BaseResponseUserVO>({
@@ -74,8 +113,12 @@ export async function getUserVOById(
     ...(options || {}),
   });
 }
-
-/** 此处后端没有提供注释 POST /user/list/page/vo */
+/**
+ * 分页查询用户列表
+ * @param body 
+ * @param options 
+ * @returns 
+ */
 export async function listUserVOByPage(body: UserQueryRequest,
   options ?: OpenApiGeneratorOptions
 ) {
@@ -90,7 +133,12 @@ export async function listUserVOByPage(body: UserQueryRequest,
   });
 }
  
-/** 此处后端没有提供注释 POST /user/login */
+/**
+ * 用户登录
+ * @param body 
+ * @param options 
+ * @returns 
+ */
 export async function userLogin(body: UserLoginRequest,
   options ?: OpenApiGeneratorOptions
 ) {
@@ -105,7 +153,11 @@ export async function userLogin(body: UserLoginRequest,
   });
 }
 
-/** 此处后端没有提供注释 POST /user/logout */
+/**
+ *  用户登出
+ * @param options 
+ * @returns 
+ */
 export async function userLogout(
   options ?: OpenApiGeneratorOptions
 ) {
@@ -116,7 +168,12 @@ export async function userLogout(
   });
 }
 
-/** 此处后端没有提供注释 POST /user/register */
+/**
+ * 用户注册
+ * @param body 
+ * @param options 
+ * @returns 
+ */
 export async function userRegister(body: UserRegisterRequest,
   options ?: OpenApiGeneratorOptions
 ) {
@@ -131,7 +188,12 @@ export async function userRegister(body: UserRegisterRequest,
   });
 }
 
-/** 此处后端没有提供注释 POST /user/update */
+/**
+ * 更新用户
+ * @param body 
+ * @param options 
+ * @returns 
+ */
 export async function updateUser(body: UserUpdateRequest,
   options ?: OpenApiGeneratorOptions
 ) {

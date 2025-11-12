@@ -1,29 +1,58 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { storeToRefs } from 'pinia'
-import { message } from 'ant-design-vue'
-import { useLoginUserStore } from '@/stores/loginUser'
-import { userLogout } from '@/api/codeMother/userController'
-import type { BaseResponseBoolean } from '@/api/codeMother/typings'
+import { computed, ref, h } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
+import { message } from 'ant-design-vue';
+import { useLoginUserStore } from '@/stores/loginUser';
+import { useThemeStore } from '@/stores/theme';
+import { userLogout } from '@/api/codeMother/userController';
+import type { BaseResponseBoolean } from '@/api/codeMother/typings';
+import { UserOutlined, BulbOutlined, LogoutOutlined, CrownOutlined, SkinOutlined } from '@ant-design/icons-vue';
+import UserProfileModal from './UserProfileModal.vue';
 
-const menuItems = ref([
-  {
-    key: 'home',
-    label: '首页',
-    path: '/',
-  },
-  {
-    key: 'about',
-    label: '关于我们',
-    path: '/about',
-  },
-])
+interface MenuItem {
+  key: string;
+  label: string;
+  icon?: () => unknown;
+  type?: string;
+  danger?: boolean;
+}
+
+const menuItems = computed(() => {
+  const baseItems = [
+    {
+      key: 'home',
+      label: '首页',
+      path: '/',
+    },
+    {
+      key: 'about',
+      label: '关于我们',
+      path: '/about',
+    },
+  ]
+  
+  // 管理员显示用户管理菜单项
+  if (userState.value.user?.userRole === 'admin') {
+    baseItems.push({
+      key: 'admin',
+      label: '用户管理',
+      path: '/admin/userManager',
+    })
+  }
+  
+  return baseItems
+})
 
 const router = useRouter()
 const route = useRoute()
 const loginUserStore = useLoginUserStore()
+const themeStore = useThemeStore()
 const { isLoggedIn, userState } = storeToRefs(loginUserStore)
+const { currentTheme } = storeToRefs(themeStore)
+
+// 个人资料编辑弹窗
+const profileModalVisible = ref(false)
 
 const selectedKeys = computed(() => {
   const currentItem = menuItems.value.find((item) => item.path === route.path)
@@ -67,7 +96,7 @@ const handleLogout = async () => {
     setTimeout(() => {
       window.location.reload()
     }, 100)
-  } catch (error) {
+  } catch {
     message.error('退出登录过程中发生错误')
     // 如果发生严重错误，也尝试刷新页面
     setTimeout(() => {
@@ -76,174 +105,435 @@ const handleLogout = async () => {
   }
 }
 
-const userDropdownItems = [
-  {
-    key: 'profile',
-    label: '个人资料',
-    icon: '👤',
-  },
-  {
-    key: 'settings',
-    label: '设置',
-    icon: '⚙️',
-  },
-  {
+const userDropdownItems = computed(() => {
+  const baseItems: MenuItem[] = [
+    {
+      key: 'profile',
+      label: '个人资料',
+      icon: () => h(UserOutlined),
+    },
+    {
+      key: 'theme',
+      label: currentTheme.value === 'dark' ? '切换日间模式' : '切换夜间模式',
+      icon: () => h(currentTheme.value === 'dark' ? BulbOutlined : SkinOutlined),
+    },
+  ];
+
+  if (userState.value.user?.userRole === 'admin') {
+    baseItems.push({
+      key: 'admin',
+      label: '用户管理',
+      icon: () => h(CrownOutlined),
+    });
+  }
+
+  baseItems.push({
+    key: 'divider',
+    label: '',
     type: 'divider',
-  },
-  {
+  });
+
+  baseItems.push({
     key: 'logout',
     label: '退出登录',
-    icon: '🚪',
+    icon: () => h(LogoutOutlined),
     danger: true,
-  },
-]
+  });
+
+  return baseItems;
+});
 
 const handleUserMenuClick = ({ key }: { key: string }) => {
-  if (key === 'logout') {
-    handleLogout()
-  } else if (key === 'profile') {
-    // TODO: 跳转到个人资料页面
-    message.info('个人资料功能开发中')
-  } else if (key === 'settings') {
-    // TODO: 跳转到设置页面
-    message.info('设置功能开发中')
+  switch (key) {
+    case 'logout':
+      handleLogout();
+      break;
+    case 'profile':
+      profileModalVisible.value = true;
+      break;
+    case 'theme':
+      themeStore.toggleTheme();
+      message.success(`已切换至${currentTheme.value === 'dark' ? '夜间' : '日间'}模式`);
+      break;
+    case 'admin':
+      router.push('/admin/userManager');
+      break;
   }
-}
+};
+
+const handleProfileUpdateSuccess = () => {
+  message.success('个人资料已更新');
+};
 </script>
 
 <template>
-  <div class="global-header">
-    <div class="global-header__left" @click="() => router.push('/')">
-      <img src="/logo.png" alt="凌犀零代码平台" class="global-header__logo" />
-      <span class="global-header__title">凌犀零代码平台</span>
-    </div>
-    <div class="global-header__center">
-      <a-menu
-        mode="horizontal"
-        :selectedKeys="selectedKeys"
-        :items="menuItems"
-        class="global-header__menu"
-        @click="handleMenuClick"
-      />
-    </div>
-    <div class="global-header__right">
-      <template v-if="isLoggedIn">
-        <a-dropdown 
-          :trigger="['hover']" 
-          placement="bottomRight"
-        >
-          <div class="global-header__user-container">
-            <a-avatar :src="userState.user?.avatar" size="large">
-              {{ userState.user?.nickname?.charAt(0) ?? '访客' }}
-            </a-avatar>
-            <div class="global-header__user-info">
-              <div class="global-header__user-name">{{ userState.user?.nickname ?? '未命名用户' }}</div>
-              <div class="global-header__user-id">ID: {{ userState.user?.id }}</div>
+  <header class="app-header glass-effect">
+    <div class="header-container">
+      <div class="header-left" @click="() => router.push('/')">
+        <div class="logo-container">
+          <img src="/logo.png" alt="凌犀零代码平台" class="logo" />
+          <div class="logo-glow"></div>
+        </div>
+        <h1 class="site-title">
+          <span class="title-text">凌犀零代码平台</span>
+          <span class="title-glow"></span>
+        </h1>
+      </div>
+      
+      <nav class="header-center">
+        <a-menu
+          mode="horizontal"
+          :selectedKeys="selectedKeys"
+          :items="menuItems"
+          class="nav-menu"
+          @click="handleMenuClick"
+        />
+      </nav>
+      
+      <div class="header-right">
+        <template v-if="isLoggedIn">
+          <a-dropdown 
+            :trigger="['hover']" 
+            placement="bottomRight"
+            class="user-dropdown"
+          >
+            <div class="user-container neon-glow">
+              <a-avatar :src="userState.user?.avatar" size="large" class="user-avatar">
+                {{ userState.user?.nickname?.charAt(0) ?? '访客' }}
+              </a-avatar>
+              <div class="user-info">
+                <div class="user-name">{{ userState.user?.nickname ?? '未命名用户' }}</div>
+                <div class="user-id">ID: {{ userState.user?.id }}</div>
+              </div>
             </div>
-          </div>
-          <template #overlay>
-            <a-menu :items="userDropdownItems" @click="handleUserMenuClick" />
-          </template>
-        </a-dropdown>
-      </template>
-      <template v-else>
-        <a-button type="primary" @click="handleLoginClick">登录</a-button>
-      </template>
+            <template #overlay>
+              <a-menu :items="userDropdownItems" @click="handleUserMenuClick" class="dropdown-menu" />
+            </template>
+          </a-dropdown>
+        </template>
+        <template v-else>
+          <a-button type="primary" @click="handleLoginClick" class="tech-button login-btn">
+            登录
+          </a-button>
+        </template>
+      </div>
     </div>
-  </div>
+    
+    <!-- 用户个人资料编辑弹窗 -->
+    <UserProfileModal 
+      v-model:visible="profileModalVisible" 
+      @success="handleProfileUpdateSuccess"
+    />
+  </header>
 </template>
 
 <style scoped>
-.global-header {
+/* 头部容器样式 */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid var(--border-secondary);
+  backdrop-filter: blur(20px);
+}
+
+.header-container {
+  max-width: 1400px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding-inline: 24px;
-  height: 64px;
+  gap: var(--spacing-md);
+  padding: 0 var(--spacing-lg);
+  height: var(--header-height);
 }
 
-.global-header__left {
+/* 左侧Logo和标题区域 */
+.header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--spacing-md);
   cursor: pointer;
+  transition: all var(--transition-normal);
+  flex-shrink: 0;
 }
 
-.global-header__logo {
-  width: 36px;
-  height: 36px;
+.header-left:hover .logo-glow {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.header-left:hover .title-glow {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.logo-container {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.logo {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+  border-radius: var(--radius-md);
+  position: relative;
+  z-index: 2;
 }
 
-.global-header__title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #111a2c;
-  white-space: nowrap;
+.logo-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--gradient-primary);
+  border-radius: var(--radius-md);
+  opacity: 0.6;
+  filter: blur(8px);
+  transition: all var(--transition-normal);
+  z-index: 1;
 }
 
-.global-header__center {
+.site-title {
+  margin: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.title-text {
+  font-size: 20px;
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  text-shadow: 0 0 20px rgba(120, 219, 255, 0.6);
+  letter-spacing: 1px;
+  position: relative;
+  z-index: 2;
+}
+
+.title-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--gradient-primary);
+  opacity: 0;
+  filter: blur(12px);
+  transition: all var(--transition-normal);
+  z-index: 1;
+}
+
+/* 中间导航菜单 */
+.header-center {
   flex: 1;
   display: flex;
   justify-content: center;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-.global-header__menu {
-  border-bottom: none;
+.nav-menu {
+  background: transparent;
+  border: none;
+  width: 100%;
 }
 
-.global-header__right {
+.nav-menu :deep(.ant-menu-item) {
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+.nav-menu :deep(.ant-menu-item:hover) {
+  color: var(--primary-color);
+  background: var(--primary-light);
+}
+
+.nav-menu :deep(.ant-menu-item-selected) {
+  color: var(--primary-color);
+  background: var(--primary-light);
+}
+
+.nav-menu :deep(.ant-menu-item::after) {
+  display: none;
+}
+
+/* 右侧用户区域 */
+.header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--spacing-md);
+  flex-shrink: 0;
 }
 
-.global-header__user-container {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.user-dropdown {
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
 }
 
-.global-header__user-container:hover {
-  background-color: rgba(0, 0, 0, 0.06);
+.user-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-normal);
+  cursor: pointer;
 }
 
-.global-header__user-info {
+.user-avatar {
+  background: var(--gradient-primary);
+  border: 2px solid var(--border-primary);
+  box-shadow: 0 0 15px rgba(120, 219, 255, 0.4);
+  transition: all var(--transition-normal);
+}
+
+.user-container:hover .user-avatar {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(120, 219, 255, 0.6);
+}
+
+.user-info {
   display: flex;
   flex-direction: column;
   line-height: 1.2;
 }
 
-.global-header__user-name {
-  font-weight: 600;
-  color: #111a2c;
+.user-name {
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  font-size: 14px;
+  text-shadow: 0 0 8px rgba(120, 219, 255, 0.4);
 }
 
-.global-header__user-id {
+.user-id {
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+/* 登录按钮 */
+.login-btn {
+  padding: 0 var(--spacing-lg);
+  height: 40px;
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.5px;
+}
+
+/* 下拉菜单样式 */
+.dropdown-menu {
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-sm) 0;
+}
+
+.dropdown-menu :deep(.ant-menu-item) {
+  color: #ffffff !important;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  margin: 0 var(--spacing-sm);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.dropdown-menu :deep(.ant-menu-item:hover) {
+  color: #ffffff !important;
+  background: var(--primary-light);
+}
+
+.dropdown-menu :deep(.ant-menu-item-danger) {
+  color: #ffffff !important;
+}
+
+.dropdown-menu :deep(.ant-menu-item-danger:hover) {
+  color: #ffffff !important;
+  background: rgba(255, 107, 107, 0.1);
+}
+
+.dropdown-menu :deep(.ant-menu-item-divider) {
+  margin: var(--spacing-sm) 0;
+  background-color: var(--border-secondary);
+}
+
+.dropdown-menu :deep(.ant-menu-item .anticon) {
+  color: #ffffff !important;
+}
+
+.dropdown-menu :deep(.ant-menu-item span) {
+  color: #ffffff !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+  .header-container {
+    padding: 0 var(--spacing-md);
+  }
+  
+  .site-title .title-text {
+    font-size: 18px;
+  }
 }
 
 @media (max-width: 768px) {
-  .global-header {
-    flex-wrap: wrap;
-    height: auto;
-    padding-block: 12px;
+  .header-container {
+    padding: 0 var(--spacing-md);
+    gap: var(--spacing-sm);
   }
-
-  .global-header__center {
+  
+  .header-left {
+    gap: var(--spacing-sm);
+  }
+  
+  .logo-container {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .site-title .title-text {
+    font-size: 16px;
+  }
+  
+  .header-center {
     order: 3;
     width: 100%;
+    max-width: none;
+    margin: var(--spacing-md) 0 0;
+  }
+  
+  .nav-menu {
     justify-content: flex-start;
   }
+  
+  .user-info {
+    display: none;
+  }
+  
+  .user-container {
+    padding: var(--spacing-sm);
+  }
+}
 
-  .global-header__menu {
-    width: 100%;
+@media (max-width: 480px) {
+  .header-container {
+    padding: 0 var(--spacing-sm);
+  }
+  
+  .site-title .title-text {
+    font-size: 14px;
+  }
+  
+  .login-btn {
+    padding: 0 var(--spacing-md);
+    height: 36px;
+    font-size: 12px;
   }
 }
 </style>

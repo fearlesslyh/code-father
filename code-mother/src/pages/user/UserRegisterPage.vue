@@ -77,49 +77,257 @@ const goLogin = () => {
 </script>
 
 <template>
-  <div class="auth-page">
-    <a-card class="auth-card" title="注册">
-      <a-form ref="formRef" :model="formState" :rules="rules" layout="vertical" @finish="handleSubmit">
-        <a-form-item label="账号" name="userAccount">
-          <a-input v-model:value="formState.userAccount" placeholder="请输入账号" allow-clear />
-        </a-form-item>
-        <a-form-item label="密码" name="userPassword">
-          <a-input-password v-model:value="formState.userPassword" placeholder="请输入密码" allow-clear />
-        </a-form-item>
-        <a-form-item label="确认密码" name="checkPassword">
-          <a-input-password v-model:value="formState.checkPassword" placeholder="请再次输入密码" allow-clear />
-        </a-form-item>
-        <a-button type="primary" html-type="submit" block :loading="loading">注 册</a-button>
-      </a-form>
-      <div class="auth-extra">
-        已有账号？请<a @click.prevent="goLogin">登录</a>
+  <div class="app-content tech-bg tech-particles">
+    <div class="auth-container">
+      <div class="auth-card tech-card">
+        <div class="auth-header">
+          <div class="auth-icon">🚀</div>
+          <h2 class="auth-title">注册凌犀零代码平台</h2>
+          <div class="auth-subtitle">创建账号，开启零代码开发新体验</div>
+        </div>
+        
+        <a-form 
+          ref="formRef" 
+          :model="formState" 
+          :rules="rules" 
+          layout="vertical" 
+          @finish="handleSubmit"
+          class="auth-form"
+        >
+          <a-form-item label="账号" name="userAccount" class="tech-form-item">
+            <a-input 
+              v-model:value="formState.userAccount" 
+              placeholder="请输入账号" 
+              allow-clear 
+              size="large"
+              class="tech-input"
+            />
+          </a-form-item>
+          
+          <a-form-item label="密码" name="userPassword" class="tech-form-item">
+            <a-input-password 
+              v-model:value="formState.userPassword" 
+              placeholder="请输入密码" 
+              allow-clear 
+              size="large"
+              class="tech-input"
+            />
+          </a-form-item>
+          
+          <a-form-item label="确认密码" name="checkPassword" class="tech-form-item">
+            <a-input-password 
+              v-model:value="formState.checkPassword" 
+              placeholder="请再次输入密码" 
+              allow-clear 
+              size="large"
+              class="tech-input"
+            />
+          </a-form-item>
+          
+          <a-button 
+            type="primary" 
+            html-type="submit" 
+            block 
+            :loading="loading"
+            size="large"
+            class="tech-button auth-submit-btn"
+          >
+            <span v-if="!loading">注 册</span>
+            <span v-else>注册中...</span>
+          </a-button>
+        </a-form>
+        
+        <div class="auth-extra">
+          <span class="extra-text">已有账号？</span>
+          <a @click.prevent="goLogin" class="tech-link">立即登录</a>
+        </div>
       </div>
-    </a-card>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.auth-page {
-  min-height: calc(100vh - 128px);
+/* 认证页面容器 */
+.auth-container {
+  min-height: var(--content-min-height);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #fff5f7 0%, #ffffff 100%);
+  padding: var(--spacing-lg);
+  position: relative;
+  z-index: 1;
 }
 
+/* 认证卡片 */
 .auth-card {
-  width: 420px;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
-  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  padding: var(--spacing-xl);
+  position: relative;
+  z-index: 2;
+  animation: fadeInUp 0.6s ease-out;
 }
 
-.auth-extra {
-  margin-top: 16px;
+/* 头部区域 */
+.auth-header {
   text-align: center;
-  color: rgba(0, 0, 0, 0.45);
+  margin-bottom: var(--spacing-xl);
 }
 
-.auth-extra a {
-  margin-left: 4px;
+.auth-icon {
+  font-size: 48px;
+  margin-bottom: var(--spacing-md);
+  filter: drop-shadow(0 0 20px rgba(120, 219, 255, 0.8));
+  animation: pulse 2s infinite;
+}
+
+.auth-title {
+  font-size: 24px;
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-sm) 0;
+  text-shadow: 0 0 25px rgba(120, 219, 255, 0.8);
+  letter-spacing: 1px;
+  line-height: 1.2;
+}
+
+.auth-subtitle {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  margin: 0;
+  font-weight: var(--font-weight-normal);
+}
+
+/* 表单样式 */
+.auth-form {
+  margin-bottom: var(--spacing-lg);
+}
+
+.tech-form-item :deep(.ant-form-item-label > label) {
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+  font-size: 14px;
+}
+
+.tech-form-item :deep(.ant-form-item-explain-error) {
+  color: var(--border-error);
+  font-size: 12px;
+  margin-top: var(--spacing-xs);
+}
+
+.tech-form-item.tech-error :deep(.ant-input),
+.tech-form-item.tech-error :deep(.ant-input-affix-wrapper),
+.tech-form-item.tech-error :deep(.ant-input-password) {
+  border-color: var(--border-error);
+  box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+}
+
+/* 表单控件样式 */
+.tech-input,
+.tech-input .ant-input,
+.tech-input .ant-input-affix-wrapper,
+.tech-input .ant-input-password {
+  background: transparent;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  transition: all var(--transition-normal);
+  height: 48px;
+  font-size: 15px;
+}
+
+.tech-input .ant-input::placeholder,
+.tech-input .ant-input-affix-wrapper input::placeholder,
+.tech-input .ant-input-password input::placeholder {
+  color: var(--text-quaternary);
+}
+
+.tech-input .ant-input:focus,
+.tech-input .ant-input-affix-wrapper:focus,
+.tech-input .ant-input-password:focus,
+.tech-input .ant-input-affix-wrapper-focused,
+.tech-input .ant-input-password-focused {
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-glow);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tech-input .ant-input-suffix {
+  color: var(--text-tertiary);
+}
+
+/* 提交按钮 */
+.auth-submit-btn {
+  height: 48px;
+  font-size: 16px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 1px;
+  margin-top: var(--spacing-md);
+}
+
+/* 底部额外信息 */
+.auth-extra {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.extra-text {
+  color: var(--text-tertiary);
+  font-size: 14px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .auth-container {
+    padding: var(--spacing-md);
+  }
+  
+  .auth-card {
+    padding: var(--spacing-lg);
+  }
+  
+  .auth-icon {
+    font-size: 40px;
+  }
+  
+  .auth-title {
+    font-size: 20px;
+  }
+  
+  .auth-subtitle {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-container {
+    padding: var(--spacing-sm);
+  }
+  
+  .auth-card {
+    padding: var(--spacing-md);
+    max-width: none;
+  }
+  
+  .auth-icon {
+    font-size: 36px;
+  }
+  
+  .auth-title {
+    font-size: 18px;
+  }
+  
+  .auth-submit-btn {
+    height: 44px;
+    font-size: 15px;
+  }
+  
+  .auth-extra {
+    font-size: 13px;
+  }
 }
 </style>
