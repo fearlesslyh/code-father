@@ -1,7 +1,6 @@
 package com.lyh.codefather.exception;
 
 import lombok.Getter;
-import org.springframework.javapoet.ParameterSpec;
 
 /**
  * @author <a href=https://github.com/fearlesslyh> 梁懿豪 </a>

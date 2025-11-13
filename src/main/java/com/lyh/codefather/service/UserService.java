@@ -1,11 +1,11 @@
 package com.lyh.codefather.service;
 
 import com.lyh.codefather.model.dto.user.UserQueryRequest;
+import com.lyh.codefather.model.entity.User;
 import com.lyh.codefather.model.vo.LoginUserVO;
 import com.lyh.codefather.model.vo.UserVO;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
-import com.lyh.codefather.model.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;

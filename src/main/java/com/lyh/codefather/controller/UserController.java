@@ -10,21 +10,15 @@ import com.lyh.codefather.exception.BusinessException;
 import com.lyh.codefather.exception.ErrorCode;
 import com.lyh.codefather.exception.ThrowUtils;
 import com.lyh.codefather.model.dto.user.*;
+import com.lyh.codefather.model.entity.User;
 import com.lyh.codefather.model.vo.LoginUserVO;
 import com.lyh.codefather.model.vo.UserVO;
+import com.lyh.codefather.service.UserService;
 import com.mybatisflex.core.paginate.Page;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import com.lyh.codefather.model.entity.User;
-import com.lyh.codefather.service.UserService;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 /**
