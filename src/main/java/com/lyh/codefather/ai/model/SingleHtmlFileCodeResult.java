@@ -11,5 +11,5 @@ public class SingleHtmlFileCodeResult {
     private String htmlCode;
 
     @Description("css代码")
-    private String description;
+    private String cssCode;
 }
