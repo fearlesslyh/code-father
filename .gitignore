@@ -34,3 +34,6 @@ build/
 
 ###CUSTOM###
 application-local.yml
+
+### 临时目录代码文件 ###
+/src/main/resources/tmp/
