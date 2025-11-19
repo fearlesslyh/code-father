@@ -1,4 +1,4 @@
-package com.lyh.codefather.generator.mapper;
+package com.lyh.codefather.mapper;
 
 import com.mybatisflex.core.BaseMapper;
 import com.lyh.codefather.model.entity.App;

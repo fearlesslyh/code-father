@@ -2,7 +2,7 @@ package com.lyh.codefather.service.impl;
 
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.lyh.codefather.model.entity.App;
-import com.lyh.codefather.generator.mapper.AppMapper;
+import com.lyh.codefather.mapper.AppMapper;
 import com.lyh.codefather.service.AppService;
 import org.springframework.stereotype.Service;
 
