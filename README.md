@@ -208,6 +208,12 @@ mvn compile exec:java -Dexec.mainClass="com.lyh.codefather.generator.Codegen"
 
 项目集成了AI智能代码生成功能，支持通过自然语言描述生成HTML/CSS/JS代码。
 
+#### 架构设计
+AI代码生成模块采用了**执行器模式**、**策略模式**和**模板方法模式**进行优化，提高了代码的可读性和可维护性：
+- **执行器模式**：提供统一的执行入口，根据生成类型执行不同的操作
+- **策略模式**：每种模式对应的解析方法单独作为一个类来维护
+- **模板方法模式**：抽象模板类定义了通用的文件保存流程，子类可以有自己的实现
+
 #### 使用方法
 
 1. **单文件代码生成**：
@@ -223,13 +229,19 @@ File result = facade.generateAndSave("做一个任务记录网站，样式要酷
 
 3. **流式输出处理**：
 ```java
-// 解析流式输出
-SingleHtmlFileCodeResult singleResult = CodeParser.parseSingleFileStream(streamResponse);
-MultiHtmlFileCodeResult multiResult = CodeParser.parseMultiFileStream(streamResponse);
+// 使用优化后的门面类处理流式输出
+File result = facade.processStreamAndSave(streamResponse, CodeGenTypeEnum.HTML);
+```
 
-// 处理并保存文件
-File savedDir = StreamCodeProcessor.processSingleFileStream(streamResponse);
-File savedDir = StreamCodeProcessor.processMultiFileStream(streamResponse);
+4. **独立使用解析器和保存器**：
+```java
+// 使用解析器执行器
+SingleHtmlFileCodeResult singleResult = codeParserExecutor.parseSingleFile(streamResponse);
+MultiHtmlFileCodeResult multiResult = codeParserExecutor.parseMultiFile(streamResponse);
+
+// 使用保存器执行器
+File singleDir = codeFileSaverExecutor.saveSingleFile(singleResult);
+File multiDir = codeFileSaverExecutor.saveMultiFile(multiResult);
 ```
 
 #### 生成内容
@@ -237,12 +249,39 @@ File savedDir = StreamCodeProcessor.processMultiFileStream(streamResponse);
 - **多文件模式**：分别生成HTML、CSS、JS文件，并自动修正文件引用
 - **智能修正**：自动检查并修正HTML文件中的CSS和JS引用路径
 
+#### 扩展新类型
+添加新的生成类型只需：
+1. 在 `CodeGenTypeEnum` 中添加新的枚举值
+2. 创建对应的解析器实现 `CodeParser<T>` 接口
+3. 创建对应的保存器实现 `CodeFileSaverTemplate<T>` 抽象类
+4. 在执行器中注册新的解析器和保存器
+
 #### 测试示例
-项目包含完整的测试用例，位于 `src/test/java/com/lyh/codefather/ai/AiCodeGeneratorServiceTest.java`，包含：
+项目包含完整的测试用例：
+- `src/test/java/com/lyh/codefather/ai/OptimizedCodeGeneratorTest.java`：单元测试
+- `src/main/java/com/lyh/codefather/ai/OptimizedCodeGeneratorRunner.java`：集成测试
+
+测试内容包括：
 - 单文件代码生成测试
 - 多文件代码生成测试  
 - 流式输出解析测试
 - 文件引用修正测试
+- 解析器执行器测试
+- 保存器执行器测试
+
+#### 运行测试
+```bash
+# 运行单元测试
+mvn test -Dtest=OptimizedCodeGeneratorTest
+
+# 运行集成测试
+mvn spring-boot:run -Dspring-boot.run.profiles=test -Dspring-boot.run.arguments="--app.test.optimized-generator=true"
+
+# 或使用批处理脚本
+test-optimized-generator.bat
+```
+
+更多详细信息请参考：[优化后的代码生成器架构文档](docs/OptimizedCodeGenerator.md)
 
 ## 配置说明
 
