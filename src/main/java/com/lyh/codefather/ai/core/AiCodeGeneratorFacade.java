@@ -69,8 +69,13 @@ public class AiCodeGeneratorFacade {
         }
         
         // 验证流式响应内容
-        if (!StreamCodeProcessor.isValidStreamResponse(streamResponse)) {
+        if (streamResponse == null || streamResponse.trim().isEmpty()) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "无效的流式响应内容");
+        }
+        
+        // 检查是否包含JSON格式内容
+        if (!streamResponse.contains("{") || !streamResponse.contains("}")) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "流式响应内容格式不正确");
         }
         
         // 解析流式输出
