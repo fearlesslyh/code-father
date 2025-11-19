@@ -1,95 +1,227 @@
 package com.lyh.codefather.controller;
 
-import com.mybatisflex.core.paginate.Page;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.beans.factory.annotation.Autowired;
+import cn.hutool.core.bean.BeanUtil;
+import com.lyh.codefather.annotation.AuthCheck;
+import com.lyh.codefather.common.BaseResponse;
+import com.lyh.codefather.common.DeleteRequest;
+import com.lyh.codefather.common.ResultUtils;
+import com.lyh.codefather.constant.UserConstant;
+import com.lyh.codefather.exception.BusinessException;
+import com.lyh.codefather.exception.ErrorCode;
+import com.lyh.codefather.exception.ThrowUtils;
+import com.lyh.codefather.model.dto.app.AppAddRequest;
+import com.lyh.codefather.model.dto.app.AppQueryRequest;
+import com.lyh.codefather.model.dto.app.AppUpdateRequest;
 import com.lyh.codefather.model.entity.App;
+import com.lyh.codefather.model.entity.User;
+import com.lyh.codefather.model.vo.AppVO;
 import com.lyh.codefather.service.AppService;
-import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
+import com.lyh.codefather.service.UserService;
+import com.mybatisflex.core.paginate.Page;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 应用 控制层。
  *
  * @author <a href=https://github.com/fearlesslyh> 梁懿豪 </a>
- * @since ${DATE} $TIME
+ * @since 2025/11/19
  */
+@Slf4j
 @RestController
 @RequestMapping("/app")
 public class AppController {
 
-    @Autowired
+    @Resource
     private AppService appService;
 
+    @Resource
+    private UserService userService;
+
+    // region 增删改查
+
     /**
-     * 保存应用。
+     * 创建应用
      *
-     * @param app 应用
-     * @return {@code true} 保存成功，{@code false} 保存失败
+     * @param appAddRequest 应用创建请求
+     * @param request       HTTP请求
+     * @return 应用ID
      */
-    @PostMapping("save")
-    public boolean save(@RequestBody App app) {
-        return appService.save(app);
+    @PostMapping("/add")
+    public BaseResponse<Long> addApp(@RequestBody AppAddRequest appAddRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(appAddRequest == null, ErrorCode.PARAMS_ERROR);
+        
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        
+        long appId = appService.createApp(appAddRequest, loginUser.getId());
+        return ResultUtils.success(appId);
     }
 
     /**
-     * 根据主键删除应用。
+     * 更新应用（用户）
      *
-     * @param id 主键
-     * @return {@code true} 删除成功，{@code false} 删除失败
+     * @param appUpdateRequest 应用更新请求
+     * @param request          HTTP请求
+     * @return 是否更新成功
      */
-    @DeleteMapping("remove/{id}")
-    public boolean remove(@PathVariable Long id) {
-        return appService.removeById(id);
+    @PostMapping("/update")
+    public BaseResponse<Boolean> updateApp(@RequestBody AppUpdateRequest appUpdateRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(appUpdateRequest == null || appUpdateRequest.getId() == null, ErrorCode.PARAMS_ERROR);
+        
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        
+        boolean result = appService.updateApp(appUpdateRequest, loginUser.getId());
+        return ResultUtils.success(result);
     }
 
     /**
-     * 根据主键更新应用。
+     * 更新应用（管理员）
      *
-     * @param app 应用
-     * @return {@code true} 更新成功，{@code false} 更新失败
+     * @param appUpdateRequest 应用更新请求
+     * @return 是否更新成功
      */
-    @PutMapping("update")
-    public boolean update(@RequestBody App app) {
-        return appService.updateById(app);
+    @PostMapping("/update/admin")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> updateAppByAdmin(@RequestBody AppUpdateRequest appUpdateRequest) {
+        ThrowUtils.throwIf(appUpdateRequest == null || appUpdateRequest.getId() == null, ErrorCode.PARAMS_ERROR);
+        
+        boolean result = appService.updateAppByAdmin(appUpdateRequest);
+        return ResultUtils.success(result);
     }
 
     /**
-     * 查询所有应用。
+     * 删除应用（用户）
      *
-     * @return 所有数据
+     * @param deleteRequest 删除请求
+     * @param request       HTTP请求
+     * @return 是否删除成功
      */
-    @GetMapping("list")
-    public List<App> list() {
-        return appService.list();
+    @PostMapping("/delete")
+    public BaseResponse<Boolean> deleteApp(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() == null, ErrorCode.PARAMS_ERROR);
+        
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        
+        boolean result = appService.deleteApp(deleteRequest.getId(), loginUser.getId());
+        return ResultUtils.success(result);
     }
 
     /**
-     * 根据主键获取应用。
+     * 删除应用（管理员）
      *
-     * @param id 应用主键
+     * @param deleteRequest 删除请求
+     * @return 是否删除成功
+     */
+    @PostMapping("/delete/admin")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> deleteAppByAdmin(@RequestBody DeleteRequest deleteRequest) {
+        ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() == null, ErrorCode.PARAMS_ERROR);
+        
+        boolean result = appService.deleteAppByAdmin(deleteRequest.getId());
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 根据ID获取应用详情（用户）
+     *
+     * @param id      应用ID
+     * @param request HTTP请求
      * @return 应用详情
      */
-    @GetMapping("getInfo/{id}")
-    public App getInfo(@PathVariable Long id) {
-        return appService.getById(id);
+    @GetMapping("/get")
+    public BaseResponse<AppVO> getAppById(long id, HttpServletRequest request) {
+        ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+        
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        
+        AppVO appVO = appService.getAppVOById(id, loginUser.getId());
+        return ResultUtils.success(appVO);
     }
 
     /**
-     * 分页查询应用。
+     * 根据ID获取应用详情（管理员）
      *
-     * @param page 分页对象
-     * @return 分页对象
+     * @param id 应用ID
+     * @return 应用详情
      */
-    @GetMapping("page")
-    public Page<App> page(Page<App> page) {
-        return appService.page(page);
+    @GetMapping("/get/admin")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<AppVO> getAppByIdByAdmin(long id) {
+        ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+        
+        AppVO appVO = appService.getAppVOByIdByAdmin(id);
+        return ResultUtils.success(appVO);
     }
 
+    /**
+     * 分页查询应用列表（用户）
+     *
+     * @param appQueryRequest 查询请求
+     * @param request          HTTP请求
+     * @return 分页结果
+     */
+    @PostMapping("/list/page")
+    public BaseResponse<Page<AppVO>> listAppByPage(@RequestBody AppQueryRequest appQueryRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(appQueryRequest == null, ErrorCode.PARAMS_ERROR);
+        
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        
+        // 设置分页参数
+        long pageNum = appQueryRequest.getPageNum();
+        long pageSize = appQueryRequest.getPageSize();
+        
+        Page<AppVO> appVOPage = appService.listAppVOByPage(appQueryRequest, loginUser.getId());
+        return ResultUtils.success(appVOPage);
+    }
+
+    /**
+     * 分页查询精选应用列表
+     *
+     * @param appQueryRequest 查询请求
+     * @return 分页结果
+     */
+    @PostMapping("/list/featured")
+    public BaseResponse<Page<AppVO>> listFeaturedAppByPage(@RequestBody AppQueryRequest appQueryRequest) {
+        ThrowUtils.throwIf(appQueryRequest == null, ErrorCode.PARAMS_ERROR);
+        
+        // 设置分页参数
+        long pageNum = appQueryRequest.getPageNum();
+        long pageSize = appQueryRequest.getPageSize();
+        
+        Page<AppVO> appVOPage = appService.listFeaturedAppVOByPage(appQueryRequest);
+        return ResultUtils.success(appVOPage);
+    }
+
+    /**
+     * 分页查询应用列表（管理员）
+     *
+     * @param appQueryRequest 查询请求
+     * @return 分页结果
+     */
+    @PostMapping("/list/page/admin")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Page<AppVO>> listAppByPageByAdmin(@RequestBody AppQueryRequest appQueryRequest) {
+        ThrowUtils.throwIf(appQueryRequest == null, ErrorCode.PARAMS_ERROR);
+        
+        // 设置分页参数
+        long pageNum = appQueryRequest.getPageNum();
+        long pageSize = appQueryRequest.getPageSize();
+        
+        Page<AppVO> appVOPage = appService.listAppVOByPageByAdmin(appQueryRequest);
+        return ResultUtils.success(appVOPage);
+    }
+
+    // endregion
 }
