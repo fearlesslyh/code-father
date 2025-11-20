@@ -8,7 +8,10 @@ import com.lyh.codefather.model.vo.AppVO;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
 import com.mybatisflex.core.paginate.Page;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import reactor.core.publisher.Flux;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -48,7 +51,7 @@ public interface AppService extends IService<App> {
     /**
      * 删除应用（用户）
      *
-     * @param appId 应用ID
+     * @param appId  应用ID
      * @param userId 操作用户ID
      * @return 是否删除成功
      */
@@ -65,7 +68,7 @@ public interface AppService extends IService<App> {
     /**
      * 根据ID获取应用视图对象（用户）
      *
-     * @param appId 应用ID
+     * @param appId  应用ID
      * @param userId 操作用户ID
      * @return 应用视图对象
      */
@@ -127,4 +130,26 @@ public interface AppService extends IService<App> {
      * @return 查询包装器
      */
     QueryWrapper getQueryWrapper(AppQueryRequest appQueryRequest);
+
+    /**
+     * 通过对话生成代码（流式处理）
+     *
+     * @param appId       应用ID
+     * @param userMessage 用户输入消息
+     * @param codeGenType 代码生成类型
+     * @param userId      操作用户ID
+     * @return 流式代码生成结果
+     */
+    Flux<String> chatToGenCodeStream(Long appId, String userMessage, String codeGenType, Long userId);
+
+    /**
+     * 创建SSE发射器并处理流式代码生成
+     *
+     * @param appId       应用ID
+     * @param userMessage 用户输入消息
+     * @param codeGenType 代码生成类型
+     * @param userId      用户ID
+     * @return SSE发射器
+     */
+    SseEmitter createCodeGenEmitter(Long appId, String userMessage, String codeGenType, Long userId);
 }

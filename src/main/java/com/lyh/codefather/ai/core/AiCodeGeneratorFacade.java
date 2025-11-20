@@ -39,34 +39,46 @@ public class AiCodeGeneratorFacade {
      * 统一入口：根据生成类型生成代码并保存
      * @param userMessage 用户输入
      * @param codeGenTypeEnum 生成类型
+     * @param appId 应用ID
      * @return 保存的目录
      */
-    public File generateAndSave(String userMessage, CodeGenTypeEnum codeGenTypeEnum) {
+    public File generateAndSave(String userMessage, CodeGenTypeEnum codeGenTypeEnum, Long appId) {
+        // 参数校验
         if (codeGenTypeEnum == null){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
         
-        log.info("开始生成代码，类型: {}", codeGenTypeEnum.getValue());
+        if (appId == null || appId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "应用ID无效");
+        }
+        
+        log.info("开始生成代码，类型: {}, 应用ID: {}", codeGenTypeEnum.getValue(), appId);
         
         // 生成代码
         Object result = generateCodeByType(userMessage, codeGenTypeEnum);
         
         // 保存代码
-        return saveCodeByType(result, codeGenTypeEnum);
+        return saveCodeByType(result, codeGenTypeEnum, appId);
     }
 
     /**
      * 处理流式输出结果并保存
      * @param streamResponse 流式响应内容
      * @param codeGenTypeEnum 生成类型
+     * @param appId 应用ID
      * @return 保存的目录
      */
-    public File processStreamAndSave(String streamResponse, CodeGenTypeEnum codeGenTypeEnum) {
-        log.info("开始处理流式输出结果，类型: {}", codeGenTypeEnum);
-        
+    public File processStreamAndSave(String streamResponse, CodeGenTypeEnum codeGenTypeEnum, Long appId) {
+        // 参数校验
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
+        
+        if (appId == null || appId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "应用ID无效");
+        }
+        
+        log.info("开始处理流式输出结果，类型: {}, 应用ID: {}", codeGenTypeEnum, appId);
         
         // 验证流式响应内容
         if (streamResponse == null || streamResponse.trim().isEmpty()) {
@@ -82,7 +94,7 @@ public class AiCodeGeneratorFacade {
         Object result = parseStreamByType(streamResponse, codeGenTypeEnum);
         
         // 保存代码
-        return saveCodeByType(result, codeGenTypeEnum);
+        return saveCodeByType(result, codeGenTypeEnum, appId);
     }
 
     /**
@@ -118,12 +130,13 @@ public class AiCodeGeneratorFacade {
      *
      * @param result 解析结果
      * @param codeGenTypeEnum 生成类型
+     * @param appId 应用ID
      * @return 保存的目录
      */
-    private File saveCodeByType(Object result, CodeGenTypeEnum codeGenTypeEnum) {
+    private File saveCodeByType(Object result, CodeGenTypeEnum codeGenTypeEnum, Long appId) {
         return switch (codeGenTypeEnum) {
-            case HTML -> codeFileSaverExecutor.saveSingleFile((SingleHtmlFileCodeResult) result);
-            case MULTI_FILE -> codeFileSaverExecutor.saveMultiFile((MultiHtmlFileCodeResult) result);
+            case HTML -> codeFileSaverExecutor.saveSingleFile((SingleHtmlFileCodeResult) result, appId);
+            case MULTI_FILE -> codeFileSaverExecutor.saveMultiFile((MultiHtmlFileCodeResult) result, appId);
         };
     }
 }

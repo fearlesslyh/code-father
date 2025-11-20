@@ -3,6 +3,8 @@ package com.lyh.codefather.ai.core.saver;
 import com.lyh.codefather.ai.model.MultiHtmlFileCodeResult;
 import com.lyh.codefather.ai.model.SingleHtmlFileCodeResult;
 import com.lyh.codefather.ai.model.enums.CodeGenTypeEnum;
+import com.lyh.codefather.exception.BusinessException;
+import com.lyh.codefather.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -45,37 +47,46 @@ public class CodeFileSaverExecutor {
      *
      * @param data 要保存的数据
      * @param type 生成类型
+     * @param appId 应用ID
      * @return 保存的目录
      */
     @SuppressWarnings("unchecked")
-    public <T> File saveByType(T data, String type) {
-        log.info("使用保存器处理类型: {}", type);
+    public <T> File saveByType(T data, String type, Long appId) {
+        // 参数校验
+        if (appId == null || appId <= 0) {
+            log.error("应用ID无效: {}", appId);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "应用ID无效");
+        }
+        
+        log.info("使用保存器处理类型: {}, 应用ID: {}", type, appId);
         
         CodeFileSaverTemplate<T> saver = (CodeFileSaverTemplate<T>) saverMap.get(type);
         if (saver == null) {
-            throw new IllegalArgumentException("不支持的保存类型: " + type);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的保存类型: " + type);
         }
         
-        return saver.saveCode(data);
+        return saver.saveCode(data, appId);
     }
 
     /**
      * 保存单文件代码
      *
      * @param data 单文件代码结果
+     * @param appId 应用ID
      * @return 保存的目录
      */
-    public File saveSingleFile(SingleHtmlFileCodeResult data) {
-        return saveByType(data, CodeGenTypeEnum.HTML.getValue());
+    public File saveSingleFile(SingleHtmlFileCodeResult data, Long appId) {
+        return saveByType(data, CodeGenTypeEnum.HTML.getValue(), appId);
     }
 
     /**
      * 保存多文件代码
      *
      * @param data 多文件代码结果
+     * @param appId 应用ID
      * @return 保存的目录
      */
-    public File saveMultiFile(MultiHtmlFileCodeResult data) {
-        return saveByType(data, CodeGenTypeEnum.MULTI_FILE.getValue());
+    public File saveMultiFile(MultiHtmlFileCodeResult data, Long appId) {
+        return saveByType(data, CodeGenTypeEnum.MULTI_FILE.getValue(), appId);
     }
 }

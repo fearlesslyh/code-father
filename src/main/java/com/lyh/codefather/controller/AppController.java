@@ -1,18 +1,15 @@
 package com.lyh.codefather.controller;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.lyh.codefather.annotation.AuthCheck;
 import com.lyh.codefather.common.BaseResponse;
 import com.lyh.codefather.common.DeleteRequest;
 import com.lyh.codefather.common.ResultUtils;
 import com.lyh.codefather.constant.UserConstant;
-import com.lyh.codefather.exception.BusinessException;
 import com.lyh.codefather.exception.ErrorCode;
 import com.lyh.codefather.exception.ThrowUtils;
 import com.lyh.codefather.model.dto.app.AppAddRequest;
 import com.lyh.codefather.model.dto.app.AppQueryRequest;
 import com.lyh.codefather.model.dto.app.AppUpdateRequest;
-import com.lyh.codefather.model.entity.App;
 import com.lyh.codefather.model.entity.User;
 import com.lyh.codefather.model.vo.AppVO;
 import com.lyh.codefather.service.AppService;
@@ -21,7 +18,9 @@ import com.mybatisflex.core.paginate.Page;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 /**
  * 应用 控制层。
@@ -39,8 +38,6 @@ public class AppController {
 
     @Resource
     private UserService userService;
-
-    // region 增删改查
 
     /**
      * 创建应用
@@ -223,5 +220,28 @@ public class AppController {
         return ResultUtils.success(appVOPage);
     }
 
-    // endregion
+    /**
+     * 通过对话生成代码（SSE流式返回）
+     *
+     * @param appId 应用ID
+     * @param userMessage 用户输入消息
+     * @param codeGenType 代码生成类型
+     * @param request HTTP请求
+     * @return SSE流式响应
+     */
+    @GetMapping(value = "/chat/gen-code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter chatToGenCodeStream(
+            @RequestParam("appId") Long appId,
+            @RequestParam("userMessage") String userMessage,
+            @RequestParam("codeGenType") String codeGenType,
+            HttpServletRequest request) {
+        
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        
+        // 委托给AppService处理流式代码生成
+        return appService.createCodeGenEmitter(appId, userMessage, codeGenType, loginUser.getId());
+    }
+
 }
