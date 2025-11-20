@@ -9,6 +9,13 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   profiles:
     active: local
+  # HTTP客户端配置
+  web:
+    client:
+      timeout:
+        connect: 30s
+        read: 60s
+        write: 30s
 
 server:
   port: 8123
@@ -27,3 +34,10 @@ springdoc:
     packages-to-scan: com.lyh.codefather.controller
   api-docs:
     path: /v3/api-docs
+
+# LangChain4j 配置
+langchain4j:
+  openai:
+    timeout: 60s  # 设置 OpenAI API 超时时间为 60 秒
+    model-name: gpt-3.5-turbo
+    temperature: 0.7

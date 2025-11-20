@@ -108,6 +108,12 @@
             <artifactId>langchain4j-reactor</artifactId>
             <version>1.8.0-beta15</version>
         </dependency>
+        
+        <!-- Spring Retry 依赖 -->
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

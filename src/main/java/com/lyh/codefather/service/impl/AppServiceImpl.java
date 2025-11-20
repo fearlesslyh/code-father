@@ -31,6 +31,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -391,15 +392,34 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     @Override
     public SseEmitter createCodeGenEmitter(Long appId, String userMessage, String codeGenType, Long userId) {
         // 创建SSE发射器，设置超时时间为30分钟
-        org.springframework.web.servlet.mvc.method.annotation.SseEmitter emitter = new org.springframework.web.servlet.mvc.method.annotation.SseEmitter(30 * 60 * 1000L);
+        SseEmitter emitter = new SseEmitter(30 * 60 * 1000L);
         
         // 设置完成、超时和错误时的回调
         emitter.onCompletion(() -> log.info("SSE连接完成，应用ID: {}, 用户ID: {}", appId, userId));
         emitter.onTimeout(() -> {
             log.warn("SSE连接超时，应用ID: {}, 用户ID: {}", appId, userId);
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("timeout")
+                        .data("{\"status\":\"timeout\",\"message\":\"连接超时\"}")
+                        .id(String.valueOf(System.currentTimeMillis())));
+            } catch (IOException e) {
+                log.error("发送超时消息失败", e);
+            }
             emitter.complete();
         });
-        emitter.onError((ex) -> log.error("SSE连接出错，应用ID: {}, 用户ID: {}", appId, userId, ex));
+        emitter.onError((ex) -> {
+            log.error("SSE连接出错，应用ID: {}, 用户ID: {}", appId, userId, ex);
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("error")
+                        .data("{\"status\":\"error\",\"message\":\"" + ex.getMessage() + "\"}")
+                        .id(String.valueOf(System.currentTimeMillis())));
+            } catch (IOException e) {
+                log.error("发送错误消息失败", e);
+            }
+            emitter.completeWithError(ex);
+        });
         
         // 在新线程中执行代码生成和流式返回
         new Thread(() -> {
@@ -414,11 +434,18 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
                 flux.subscribe(
                     chunk -> {
                         try {
-                            // 使用Base64编码确保空格和特殊字符不会丢失
-                            String encodedChunk = java.util.Base64.getEncoder().encodeToString(chunk.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-                            sendEvent(emitter, "message", encodedChunk);
+                            // 直接发送原始数据，不使用Base64编码
+                            sendEvent(emitter, "message", chunk);
                         } catch (Exception e) {
                             log.error("发送SSE消息失败", e);
+                            try {
+                                emitter.send(SseEmitter.event()
+                                        .name("error")
+                                        .data("{\"status\":\"error\",\"message\":\"发送消息失败\"}")
+                                        .id(String.valueOf(System.currentTimeMillis())));
+                            } catch (IOException ioException) {
+                                log.error("发送错误消息失败", ioException);
+                            }
                             emitter.completeWithError(e);
                         }
                     },
@@ -486,9 +513,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
      * @param eventName 事件名称
      * @param data 事件数据
      */
-    private void sendEvent(org.springframework.web.servlet.mvc.method.annotation.SseEmitter emitter, String eventName, String data) {
+    private void sendEvent(SseEmitter emitter, String eventName, String data) {
         try {
-            emitter.send(org.springframework.web.servlet.mvc.method.annotation.SseEmitter.event()
+            emitter.send(SseEmitter.event()
                     .name(eventName)
                     .data(data)
                     .id(String.valueOf(System.currentTimeMillis())));
@@ -504,7 +531,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
      * @param emitter SSE发射器
      * @param errorMessage 错误消息
      */
-    private void sendErrorEvent(org.springframework.web.servlet.mvc.method.annotation.SseEmitter emitter, String errorMessage) {
+    private void sendErrorEvent(SseEmitter emitter, String errorMessage) {
         try {
             String errorData = String.format("{\"status\":\"error\",\"message\":\"%s\"}", errorMessage);
             sendEvent(emitter, "error", errorData);

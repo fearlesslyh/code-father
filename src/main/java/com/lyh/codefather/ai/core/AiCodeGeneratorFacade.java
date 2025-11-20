@@ -10,9 +10,13 @@ import com.lyh.codefather.exception.BusinessException;
 import com.lyh.codefather.exception.ErrorCode;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 
 /**
  * AI代码生成器门面类 - 优化版本
@@ -42,6 +46,7 @@ public class AiCodeGeneratorFacade {
      * @param appId 应用ID
      * @return 保存的目录
      */
+    @Retryable(value = {SocketTimeoutException.class, ConnectException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000))
     public File generateAndSave(String userMessage, CodeGenTypeEnum codeGenTypeEnum, Long appId) {
         // 参数校验
         if (codeGenTypeEnum == null){
@@ -68,6 +73,7 @@ public class AiCodeGeneratorFacade {
      * @param appId 应用ID
      * @return 保存的目录
      */
+    @Retryable(value = {SocketTimeoutException.class, ConnectException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000))
     public File processStreamAndSave(String streamResponse, CodeGenTypeEnum codeGenTypeEnum, Long appId) {
         // 参数校验
         if (codeGenTypeEnum == null) {
