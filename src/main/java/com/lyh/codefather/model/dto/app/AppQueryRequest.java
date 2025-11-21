@@ -27,6 +27,11 @@ public class AppQueryRequest extends PageRequest implements Serializable {
     private String appName;
 
     /**
+     * 应用封面
+     */
+    private String cover;
+
+    /**
      * 应用初始化的 prompt
      */
     private String initPrompt;
@@ -50,11 +55,6 @@ public class AppQueryRequest extends PageRequest implements Serializable {
      * 创建用户id
      */
     private Long userId;
-
-    /**
-     * 是否只查询精选应用
-     */
-    private Boolean onlyFeatured;
 
     private static final long serialVersionUID = 1L;
 }

@@ -60,16 +60,6 @@ public class AppVO implements Serializable {
     private Long userId;
 
     /**
-     * 用户信息
-     */
-    private UserVO user;
-
-    /**
-     * 编辑时间
-     */
-    private LocalDateTime editTime;
-
-    /**
      * 创建时间
      */
     private LocalDateTime createTime;
@@ -78,6 +68,11 @@ public class AppVO implements Serializable {
      * 更新时间
      */
     private LocalDateTime updateTime;
+
+    /**
+     * 创建用户信息
+     */
+    private UserVO user;
 
     private static final long serialVersionUID = 1L;
 }
