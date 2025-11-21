@@ -10,14 +10,10 @@ import com.lyh.codefather.exception.BusinessException;
 import com.lyh.codefather.exception.ErrorCode;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
 
 /**
  * AI代码生成器门面类 - 优化版本

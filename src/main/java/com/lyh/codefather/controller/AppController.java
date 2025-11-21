@@ -13,10 +13,7 @@ import com.lyh.codefather.constant.UserConstant;
 import com.lyh.codefather.exception.BusinessException;
 import com.lyh.codefather.exception.ErrorCode;
 import com.lyh.codefather.exception.ThrowUtils;
-import com.lyh.codefather.model.dto.app.AppAddRequest;
-import com.lyh.codefather.model.dto.app.AppAdminUpdateRequest;
-import com.lyh.codefather.model.dto.app.AppQueryRequest;
-import com.lyh.codefather.model.dto.app.AppUpdateRequest;
+import com.lyh.codefather.model.dto.app.*;
 import com.lyh.codefather.model.entity.App;
 import com.lyh.codefather.model.entity.User;
 import com.lyh.codefather.model.vo.AppVO;
@@ -76,7 +73,7 @@ public class AppController {
         app.setUserId(loginUser.getId());
         // 应用名称暂时为 initPrompt 前 12 位
         app.setAppName(initPrompt.substring(0, Math.min(initPrompt.length(), 12)));
-        // 暂时设置为多文件生成
+        // 暂时设置为单文件生成
         app.setCodeGenType(CodeGenTypeEnum.MULTI_FILE.getValue());
         // 插入数据库
         boolean result = appService.save(app);
@@ -330,5 +327,15 @@ public class AppController {
                 ));
     }
 
+    @PostMapping("/deploy")
+    public BaseResponse<String> deployApp(@RequestBody AppDeployRequest appDeployRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(appDeployRequest == null, ErrorCode.PARAMS_ERROR, "请求参数不能为空");
+        Long appId = appDeployRequest.getAppId();
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID无效");
+        // 获取当前用户
+        User loginUser = userService.getLoginUser(request);
+        String deployUrl = appService.deployApp(appId, loginUser);
+        return ResultUtils.success(deployUrl);
+    }
 
 }
