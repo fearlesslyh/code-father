@@ -1,107 +1,99 @@
 package com.lyh.codefather.ai.core.saver;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import com.lyh.codefather.ai.model.enums.CodeGenTypeEnum;
 import com.lyh.codefather.exception.BusinessException;
 import com.lyh.codefather.exception.ErrorCode;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 
 /**
- * 代码文件保存模板抽象类
- * 实现模板方法模式，定义通用的文件保存流程
+ * 抽象代码文件保存器 - 模板方法模式
  *
- * @param <T> 保存的数据类型
- * @author <a href=https://github.com/fearlesslyh> 梁懿豪 </a>
- * @version 1.0
- * @since 2025/11/19
+ * @author yupi
  */
-@Slf4j
 public abstract class CodeFileSaverTemplate<T> {
 
     // 文件保存根目录
-    private static final String SAVE_ROOT_PATH = System.getProperty("user.dir") + "/src/main/resources/tmp/code_generate";
+    protected static final String FILE_SAVE_ROOT_DIR = System.getProperty("user.dir") + "/src/main/resources/tmp/code_output";
 
     /**
-     * 保存代码的模板方法
-     * 定义保存代码的通用流程，子类可以有自己的实现
+     * 模板方法：保存代码的标准流程（使用 appId）
      *
-     * @param data 要保存的数据
-     * @param appId 应用ID，用于目录命名
+     * @param result 代码结果对象
+     * @param appId  应用 ID
      * @return 保存的目录
      */
-    public final File saveCode(T data, Long appId) {
-        log.info("开始保存代码，类型: {}, 应用ID: {}", getSupportedType(), appId);
-        
-        // 参数校验
-        if (appId == null || appId <= 0) {
-            log.error("应用ID无效: {}", appId);
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "应用ID无效");
-        }
-        
-        // 1. 验证数据
-        if (!validateData(data)) {
-            log.error("数据验证失败");
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "数据验证失败");
-        }
-        
-        // 2. 创建唯一目录
-        String dirPath = buildUniqueDir(appId);
-        
-        // 3. 保存文件（由子类实现）
-        saveFiles(data, dirPath);
-        
-        // 4. 返回保存的目录
-        File savedDir = new File(dirPath);
-        log.info("代码保存完成，目录: {}", dirPath);
-        return savedDir;
+    public final File saveCode(T result, Long appId) {
+        // 1. 验证输入
+        validateInput(result);
+        // 2. 构建基于 appId 的目录
+        String baseDirPath = buildUniqueDir(appId);
+        // 3. 保存文件（具体实现由子类提供）
+        saveFiles(result, baseDirPath);
+        // 4. 返回目录文件对象
+        return new File(baseDirPath);
     }
 
     /**
-     * 验证数据有效性
+     * 构建基于 appId 的目录路径
      *
-     * @param data 要验证的数据
-     * @return 验证结果
-     */
-    protected abstract boolean validateData(T data);
-
-    /**
-     * 保存文件
-     *
-     * @param data    要保存的数据
-     * @param dirPath 保存目录路径
-     */
-    protected abstract void saveFiles(T data, String dirPath);
-
-    /**
-     * 获取支持的类型
-     *
-     * @return 支持的类型
-     */
-    public abstract String getSupportedType();
-
-    /**
-     * 构建基于应用ID的唯一目录路径
-     *
-     * @param appId 应用ID
+     * @param appId 应用 ID
      * @return 目录路径
      */
-    private String buildUniqueDir(Long appId) {
-        String dirName = StrUtil.format("app_{}_{}_{}", appId, getSupportedType(), IdUtil.getSnowflakeNextIdStr());
-        String dirPath = SAVE_ROOT_PATH + File.separator + dirName;
-        
-        // 创建目录
-        File dir = new File(dirPath);
-        if (!dir.exists()) {
-            boolean created = dir.mkdirs();
-            if (!created) {
-                log.error("创建目录失败: {}", dirPath);
-                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "创建目录失败: " + dirPath);
-            }
+    protected final String buildUniqueDir(Long appId) {
+        if (appId == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "应用 ID 不能为空");
         }
-        
+        String codeType = getCodeType().getValue();
+        String uniqueDirName = StrUtil.format("{}_{}", codeType, appId);
+        String dirPath = FILE_SAVE_ROOT_DIR + File.separator + uniqueDirName;
+        FileUtil.mkdir(dirPath);
         return dirPath;
     }
 
+
+    /**
+     * 验证输入参数（可由子类覆盖）
+     *
+     * @param result 代码结果对象
+     */
+    protected void validateInput(T result) {
+        if (result == null) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "代码结果对象不能为空");
+        }
+    }
+
+
+    /**
+     * 写入单个文件的工具方法
+     *
+     * @param dirPath  目录路径
+     * @param filename 文件名
+     * @param content  文件内容
+     */
+    protected final void writeToFile(String dirPath, String filename, String content) {
+        if (StrUtil.isNotBlank(content)) {
+            String filePath = dirPath + File.separator + filename;
+            FileUtil.writeString(content, filePath, StandardCharsets.UTF_8);
+        }
+    }
+
+    /**
+     * 获取代码类型（由子类实现）
+     *
+     * @return 代码生成类型
+     */
+    protected abstract CodeGenTypeEnum getCodeType();
+
+    /**
+     * 保存文件的具体实现（由子类实现）
+     *
+     * @param result      代码结果对象
+     * @param baseDirPath 基础目录路径
+     */
+    protected abstract void saveFiles(T result, String baseDirPath);
 }

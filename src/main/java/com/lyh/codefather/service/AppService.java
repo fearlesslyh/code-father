@@ -4,6 +4,7 @@ import com.lyh.codefather.model.dto.app.AppAddRequest;
 import com.lyh.codefather.model.dto.app.AppQueryRequest;
 import com.lyh.codefather.model.dto.app.AppUpdateRequest;
 import com.lyh.codefather.model.entity.App;
+import com.lyh.codefather.model.entity.User;
 import com.lyh.codefather.model.vo.AppVO;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
@@ -56,25 +57,5 @@ public interface AppService extends IService<App> {
      */
     QueryWrapper getQueryWrapper(AppQueryRequest appQueryRequest);
 
-    /**
-     * 通过对话生成代码（流式处理）
-     *
-     * @param appId       应用ID
-     * @param userMessage 用户输入消息
-     * @param codeGenType 代码生成类型
-     * @param userId      操作用户ID
-     * @return 流式代码生成结果
-     */
-    Flux<String> chatToGenCodeStream(Long appId, String userMessage, String codeGenType, Long userId);
-
-    /**
-     * 创建SSE发射器并处理流式代码生成
-     *
-     * @param appId       应用ID
-     * @param userMessage 用户输入消息
-     * @param codeGenType 代码生成类型
-     * @param userId      用户ID
-     * @return SSE发射器
-     */
-    SseEmitter createCodeGenEmitter(Long appId, String userMessage, String codeGenType, Long userId);
+    Flux<String> chatToGenCode(Long appId, String message, User loginUser);
 }
