@@ -1,0 +1,10 @@
+// 黑洞引力透镜顶点着色器
+varying vec2 vUv;
+varying vec3 vPosition;
+
+void main() {
+  vUv = uv;
+  vPosition = position;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+
