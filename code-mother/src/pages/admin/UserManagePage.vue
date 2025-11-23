@@ -383,46 +383,13 @@ const handleEditCancel = () => {
 </template>
 
 <style scoped>
-/* 夜间模式样式 */
-[data-theme='dark'] .user-manage-page {
-  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+/* 页面背景 - 使用 BasicLayout 的全局渐变 */
+.user-manage-page {
+  background: transparent;
   min-height: calc(59vh - 60px);
   padding: 24px;
   position: relative;
   overflow: hidden;
-}
-
-[data-theme='dark'] .user-manage-page::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
-  animation: backgroundAnimation 20s ease-in-out infinite;
-  pointer-events: none;
-}
-
-@keyframes backgroundAnimation {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 0.8; }
-}
-
-/* 白天模式样式 */
-[data-theme='light'] .user-manage-page {
-  background: #f0f2f5;
-  min-height: calc(59vh - 60px);
-  padding: 24px;
-  position: relative;
-  overflow: hidden;
-}
-
-[data-theme='light'] .user-manage-page::before {
-  display: none;
 }
 
 [data-theme='light'] .user-manage-page :deep(.ant-card) {

@@ -47,9 +47,18 @@ import { GithubOutlined } from '@ant-design/icons-vue'
 /* 底部容器样式 */
 .app-footer {
   position: relative;
-  border-top: 1px solid var(--border-secondary);
+  background-image: linear-gradient(to top, #96fbc4 0%, #f9f586 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(20px);
   overflow: hidden;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 夜间模式 Footer 使用同样的渐变 */
+[data-theme='dark'] .app-footer {
+  background-image: linear-gradient(to top, #96fbc4 0%, #f9f586 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.3);
 }
 
 .footer-container {

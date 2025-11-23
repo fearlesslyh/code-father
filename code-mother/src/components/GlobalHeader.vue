@@ -7,7 +7,7 @@ import { useLoginUserStore } from '@/stores/loginUser';
 import { useThemeStore } from '@/stores/theme';
 import { userLogout } from '@/api/codeMother/userController';
 import type { BaseResponseBoolean } from '@/api/codeMother/typings';
-import { UserOutlined, BulbOutlined, LogoutOutlined, CrownOutlined, SkinOutlined } from '@ant-design/icons-vue';
+import { UserOutlined, BulbOutlined, LogoutOutlined, CrownOutlined, SkinOutlined, ApiOutlined } from '@ant-design/icons-vue';
 import UserProfileModal from './UserProfileModal.vue';
 
 interface MenuItem {
@@ -27,17 +27,22 @@ const menuItems = computed(() => {
     },
     {
       key: 'about',
-      label: '关于我们',
+      label: '关于我',
       path: '/about',
     },
   ]
   
-  // 管理员显示用户管理菜单项
+  // 管理员显示管理菜单项
   if (userState.value.user?.userRole === 'admin') {
     baseItems.push({
-      key: 'admin',
+      key: 'admin-users',
       label: '用户管理',
       path: '/admin/userManager',
+    })
+    baseItems.push({
+      key: 'admin-apps',
+      label: '应用管理',
+      path: '/admin/appManager',
     })
   }
   
@@ -121,9 +126,14 @@ const userDropdownItems = computed(() => {
 
   if (userState.value.user?.userRole === 'admin') {
     baseItems.push({
-      key: 'admin',
+      key: 'admin-users',
       label: '用户管理',
       icon: () => h(CrownOutlined),
+    });
+    baseItems.push({
+      key: 'admin-apps',
+      label: '应用管理',
+      icon: () => h(ApiOutlined),
     });
   }
 
@@ -155,8 +165,11 @@ const handleUserMenuClick = ({ key }: { key: string }) => {
       themeStore.toggleTheme();
       message.success(`已切换至${currentTheme.value === 'dark' ? '夜间' : '日间'}模式`);
       break;
-    case 'admin':
+    case 'admin-users':
       router.push('/admin/userManager');
+      break;
+    case 'admin-apps':
+      router.push('/admin/appManager');
       break;
   }
 };
@@ -228,13 +241,22 @@ const handleProfileUpdateSuccess = () => {
 </template>
 
 <style scoped>
-/* 头部容器样式 */
+/* 头部容器样式 - 日间模式 */
 .app-header {
   position: sticky;
   top: 0;
   z-index: 1000;
-  border-bottom: 1px solid var(--border-secondary);
+  background-image: linear-gradient(to top, #fddb92 0%, #d1fdff 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(20px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 夜间模式 Header 使用紫粉渐变 */
+[data-theme='dark'] .app-header {
+  background-image: linear-gradient(-225deg, #7742B2 0%, #F180FF 52%, #FD8BD9 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
 .header-container {

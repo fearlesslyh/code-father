@@ -41,7 +41,7 @@ export type BaseResponseUserVO = {
 };
 
 export type DeleteRequest = {
-  id?: number;
+  id?: string;
 };
 
 export type getParams = {
@@ -150,5 +150,102 @@ export type UserUpdateMyProfileRequest = {
   currentPassword?: string
   newPassword?: string
   checkNewPassword?: string
+};
+
+// App相关类型定义
+export type AppAddRequest = {
+  initPrompt?: string;
+};
+
+export type AppAdminUpdateRequest = {
+  id?: string;
+  appName?: string;
+  cover?: string;
+  priority?: number;
+};
+
+export type AppDeployRequest = {
+  appId?: string;
+};
+
+export type AppQueryRequest = {
+  pageNum?: number;
+  pageSize?: number;
+  sortField?: string;
+  sortOrder?: string;
+  id?: string;
+  appName?: string;
+  cover?: string;
+  initPrompt?: string;
+  codeGenType?: string;
+  deployKey?: string;
+  priority?: number;
+  userId?: string;
+  visibility?: string; // 可见范围：public/private
+  tags?: string[]; // 标签数组
+};
+
+export type AppUpdateRequest = {
+  id?: string;
+  appName?: string;
+};
+
+export type AppVO = {
+  id?: string;
+  appName?: string;
+  cover?: string;
+  initPrompt?: string;
+  codeGenType?: string;
+  deployKey?: string;
+  deployedTime?: string;
+  priority?: number;
+  visibility?: string; // 可见范围：public/private
+  tags?: string[]; // 标签数组
+  version?: number; // 版本号
+  generationStatus?: string; // 生成状态：idle/generating/completed/failed
+  userId?: string;
+  createTime?: string;
+  updateTime?: string;
+  user?: UserVO;
+};
+
+export type BaseResponseAppVO = {
+  code?: number;
+  data?: AppVO;
+  message?: string;
+};
+
+export type BaseResponsePageAppVO = {
+  code?: number;
+  data?: PageAppVO;
+  message?: string;
+};
+
+export type PageAppVO = {
+  records?: AppVO[];
+  pageNumber?: number;
+  pageSize?: number;
+  totalPage?: number;
+  totalRow?: number;
+  optimizeCountQuery?: boolean;
+};
+
+export type ServerSentEventString = true;
+
+export type chatToGenCodeParams = {
+  appId: string;
+  message: string;
+};
+
+export type getAppVOByIdByAdminParams = {
+  id: string;
+};
+
+export type getAppVOByIdParams = {
+  id: string;
+};
+
+export type serveStaticResourceParams = {
+  deployKey: string;
 };
 

@@ -42,6 +42,39 @@ const router = createRouter({
       },
     },
     {
+      path: '/admin/appManager',
+      name: '应用管理',
+      component: () => import('@/pages/admin/AppManagePage.vue'),
+      meta: {
+        requiresAuth: true,
+        requiresAdmin: true, // 需要管理员权限
+      },
+    },
+    {
+      path: '/app/detail/:id',
+      name: '应用详情',
+      component: () => import('@/pages/AppDetailPage.vue'),
+      meta: {
+        requiresAuth: true, // 需要登录
+      },
+    },
+    {
+      path: '/app/chat/:id',
+      name: '应用对话',
+      component: () => import('@/pages/AppChatPage.vue'),
+      meta: {
+        requiresAuth: true, // 需要登录
+      },
+    },
+    {
+      path: '/app/edit/:id',
+      name: '应用编辑',
+      component: () => import('@/pages/AppEditPage.vue'),
+      meta: {
+        requiresAuth: true, // 需要登录
+      },
+    },
+    {
       path: '/noAuth',
       name: '无权限',
       component: () => import('@/pages/NoAuthPage.vue'),

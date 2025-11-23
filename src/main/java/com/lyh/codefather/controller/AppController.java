@@ -75,6 +75,7 @@ public class AppController {
         app.setAppName(initPrompt.substring(0, Math.min(initPrompt.length(), 12)));
         // 暂时设置为单文件生成
         app.setCodeGenType(CodeGenTypeEnum.MULTI_FILE.getValue());
+        app.setCover("https://picsum.photos/320/180");
         // 插入数据库
         boolean result = appService.save(app);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);

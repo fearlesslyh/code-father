@@ -17,9 +17,13 @@
     "openapi2ts": "openapi2ts"
   },
   "dependencies": {
+    "@types/three": "^0.181.0",
     "ant-design-vue": "^4.2.6",
     "axios": "^1.13.2",
+    "highlight.js": "^11.11.1",
+    "marked": "^17.0.1",
     "pinia": "^3.0.3",
+    "three": "^0.181.2",
     "tslib": "^2.8.1",
     "vue": "^3.5.22",
     "vue-router": "^4.6.3"
