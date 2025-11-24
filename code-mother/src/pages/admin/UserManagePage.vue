@@ -954,6 +954,39 @@ const handleEditCancel = () => {
   font-size: 12px;
 }
 
+/* 夜间模式表格样式修复 */
+[data-theme='dark'] .user-manage-page :deep(.ant-table) {
+  background: transparent !important;
+}
+
+[data-theme='dark'] .user-manage-page :deep(.ant-table-container) {
+  background: transparent !important;
+}
+
+[data-theme='dark'] .user-manage-page :deep(.ant-table-content) {
+  background: transparent !important;
+}
+
+[data-theme='dark'] .user-manage-page :deep(.ant-table-thead > tr > th) {
+  background: rgba(30, 35, 42, 0.6) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  border-bottom: 1px solid rgba(120, 119, 198, 0.3) !important;
+}
+
+[data-theme='dark'] .user-manage-page :deep(.ant-table-tbody > tr > td) {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(120, 119, 198, 0.2) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+[data-theme='dark'] .user-manage-page :deep(.ant-table-tbody > tr:hover > td) {
+  background: rgba(120, 119, 198, 0.1) !important;
+}
+
+[data-theme='dark'] .user-manage-page :deep(.ant-table-tbody > tr) {
+  background: transparent !important;
+}
+
 /* 响应式调整 */
 @media (max-width: 768px) {
   .user-manage-page {

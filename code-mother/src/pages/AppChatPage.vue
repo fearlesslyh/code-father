@@ -9,10 +9,12 @@ import {
   deployApp,
   deleteApp
 } from '@/api/codeMother/appController'
+import { listAppChatHistory } from '@/api/codeMother/chatHistoryController'
 import type { 
   AppVO,
   AppDeployRequest,
-  DeleteRequest
+  DeleteRequest,
+  ChatHistory
 } from '@/api/codeMother/typings'
 import { SendOutlined, DeploymentUnitOutlined, LoadingOutlined, ArrowLeftOutlined, RobotOutlined, InfoCircleOutlined, EditOutlined, DeleteOutlined, CheckCircleOutlined, CopyOutlined, CloseOutlined, StopOutlined, PoweroffOutlined } from '@ant-design/icons-vue'
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
@@ -35,6 +37,11 @@ const currentMessage = ref('')
 const isLoading = ref(false)
 const isStreaming = ref(false)
 const eventSource = ref<EventSource | null>(null)
+
+// 历史消息加载相关
+const historyLoading = ref(false)
+const hasMoreHistory = ref(true)
+const lastCreateTime = ref<string | undefined>(undefined)
 
 // 网站预览相关
 const showPreview = ref(false)
@@ -62,6 +69,58 @@ const canChat = computed(() => {
   return String(appInfo.value.userId) === String(userState.value.user.id) || userState.value.user.userRole === 'admin'
 })
 
+// 加载历史对话消息
+const loadChatHistory = async (isLoadMore = false) => {
+  try {
+    historyLoading.value = true
+    
+    const response = await listAppChatHistory({
+      appId: appId.value,
+      pageSize: 10,
+      lastCreateTime: isLoadMore ? lastCreateTime.value : undefined
+    })
+    
+    if (response.data?.records && response.data.records.length > 0) {
+      const historyRecords = response.data.records
+      
+      // 转换历史记录为消息格式，按创建时间升序排列
+      const historyMessages = historyRecords
+        .sort((a, b) => new Date(a.createTime!).getTime() - new Date(b.createTime!).getTime())
+        .map(record => ({
+          role: record.messageType === 'user' ? 'user' : 'assistant',
+          content: record.message || ''
+        })) as Array<{ role: 'user' | 'assistant', content: string }>
+      
+      if (isLoadMore) {
+        // 加载更多时，插入到消息列表前面
+        messages.value = [...historyMessages, ...messages.value]
+      } else {
+        // 首次加载，直接设置
+        messages.value = historyMessages
+      }
+      
+      // 更新游标（最早一条消息的创建时间）
+      if (historyRecords.length > 0) {
+        lastCreateTime.value = historyRecords[historyRecords.length - 1].createTime
+      }
+      
+      // 检查是否还有更多历史消息
+      hasMoreHistory.value = historyRecords.length >= 10
+    } else {
+      // 没有更多历史消息
+      hasMoreHistory.value = false
+      if (isLoadMore) {
+        message.info('没有更多历史消息了')
+      }
+    }
+  } catch (error) {
+    console.error('加载历史消息失败:', error)
+    message.error('加载历史消息失败')
+  } finally {
+    historyLoading.value = false
+  }
+}
+
 // 获取应用信息
 const fetchAppInfo = async () => {
   try {
@@ -71,14 +130,22 @@ const fetchAppInfo = async () => {
     if (response.data) {
       appInfo.value = response.data
       
-      // 检查URL查询参数，如果有 view=1 则不自动发送消息
-      const viewParam = route.query.view
-      const shouldAutoSend = !viewParam || viewParam !== '1'
+      // 先加载历史消息
+      await loadChatHistory(false)
       
-      // 如果是首次进入且需要自动发送，直接发送初始消息（不先添加到消息列表，因为sendMessageToAI会添加）
-      if (shouldAutoSend && messages.value.length === 0 && appInfo.value.initPrompt) {
-        // 直接发送，不先添加到消息列表
+      // 修改自动发送初始消息的逻辑
+      // 只有当是自己的 app，并且没有对话历史时，才自动发送 initPrompt
+      const isOwnApp = canEdit.value
+      if (isOwnApp && messages.value.length === 0 && appInfo.value.initPrompt) {
         await sendMessageToAI(appInfo.value.initPrompt)
+      }
+      
+      // 修改网站展示逻辑：如果有至少 2 条对话记录，展示网站
+      if (messages.value.length >= 2) {
+        showPreview.value = true
+        const codeGenType = appInfo.value.codeGenType || 'html'
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api'
+        previewUrl.value = `${apiBaseUrl}/static/${codeGenType}_${appId.value}/`
       }
     } else {
       message.error('获取应用信息失败')
@@ -420,8 +487,24 @@ onUnmounted(() => {
       <!-- 左侧对话区域 -->
       <section class="chat-section">
         <div class="messages-container" ref="messagesContainer">
-          <div v-if="messages.length === 0" class="empty-messages">
+          <!-- 加载更多按钮 -->
+          <div v-if="hasMoreHistory && messages.length > 0" class="load-more-container">
+            <a-button
+              type="dashed"
+              :loading="historyLoading"
+              @click="loadChatHistory(true)"
+              class="load-more-button"
+            >
+              加载更多历史消息
+            </a-button>
+          </div>
+          
+          <div v-if="messages.length === 0 && !historyLoading" class="empty-messages">
             <a-empty description="暂无对话记录" />
+          </div>
+          
+          <div v-if="historyLoading && messages.length === 0" class="loading-messages">
+            <a-spin tip="加载历史消息中..." />
           </div>
           
           <div
@@ -712,6 +795,24 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center;
   height: 100%;
+}
+
+.loading-messages {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-md) 0;
+  margin-bottom: var(--spacing-md);
+}
+
+.load-more-button {
+  width: 200px;
 }
 
 .message-item {

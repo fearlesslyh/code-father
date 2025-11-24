@@ -285,27 +285,21 @@ const columns = [
     title: 'ID',
     dataIndex: 'id',
     key: 'id',
-    width: 80,
+    width: 100,
   },
   {
     title: '应用名称',
     dataIndex: 'appName',
     key: 'appName',
     ellipsis: true,
-    width: 150,
-  },
-  {
-    title: '应用封面',
-    dataIndex: 'cover',
-    key: 'cover',
-    width: 120,
+    width: 180,
   },
   {
     title: '初始化Prompt',
     dataIndex: 'initPrompt',
     key: 'initPrompt',
     ellipsis: true,
-    width: 200,
+    width: 250,
   },
   {
     title: '创建者',
@@ -317,7 +311,7 @@ const columns = [
     title: '应用类型',
     dataIndex: 'codeGenType',
     key: 'codeGenType',
-    width: 120,
+    width: 130,
   },
   {
     title: '优先级',
@@ -343,7 +337,7 @@ const columns = [
   {
     title: '操作',
     key: 'action',
-    width: 200,
+    width: 260,
     fixed: 'right' as const,
   },
 ]
@@ -664,6 +658,39 @@ onMounted(() => {
   font-size: 12px;
   color: var(--text-tertiary);
   margin-top: var(--spacing-xs);
+}
+
+/* 夜间模式表格样式修复 */
+[data-theme='dark'] .app-manage-page :deep(.ant-table) {
+  background: transparent !important;
+}
+
+[data-theme='dark'] .app-manage-page :deep(.ant-table-container) {
+  background: transparent !important;
+}
+
+[data-theme='dark'] .app-manage-page :deep(.ant-table-content) {
+  background: transparent !important;
+}
+
+[data-theme='dark'] .app-manage-page :deep(.ant-table-thead > tr > th) {
+  background: rgba(30, 35, 42, 0.6) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  border-bottom: 1px solid rgba(120, 119, 198, 0.3) !important;
+}
+
+[data-theme='dark'] .app-manage-page :deep(.ant-table-tbody > tr > td) {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(120, 119, 198, 0.2) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+[data-theme='dark'] .app-manage-page :deep(.ant-table-tbody > tr:hover > td) {
+  background: rgba(120, 119, 198, 0.1) !important;
+}
+
+[data-theme='dark'] .app-manage-page :deep(.ant-table-tbody > tr) {
+  background: transparent !important;
 }
 
 /* 响应式设计 */

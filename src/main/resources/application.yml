@@ -9,11 +9,22 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   profiles:
     active: local
+  data:
+    redis:
+      host: localhost
+      port: 6378
+      ttl: 3600
+  session:
+    store-type: redis
+    timeout: 2592000
 
 server:
   port: 8123
   servlet:
     context-path: /api
+    session:
+      cookie:
+        max-age: 2592000
 
 # knife4j
 knife4j:
@@ -27,3 +38,5 @@ springdoc:
     packages-to-scan: com.lyh.codefather.controller
   api-docs:
     path: /v3/api-docs
+
+

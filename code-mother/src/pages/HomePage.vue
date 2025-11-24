@@ -311,7 +311,7 @@ onMounted(() => {
             <span class="title-text">凌犀零代码平台</span>
           </h1>
           <p class="hero-subtitle">
-            一句话轻松创建网站应用
+            无需编码，即可快速构建应用。让每一位创作者都能把想法转化为现实，释放你的无限想象力。
           </p>
 
           <div class="prompt-input-container">

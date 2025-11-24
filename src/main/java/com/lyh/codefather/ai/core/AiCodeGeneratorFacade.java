@@ -1,5 +1,6 @@
 package com.lyh.codefather.ai.core;
 
+import com.lyh.codefather.ai.AiCodeGeneratorFactory;
 import com.lyh.codefather.ai.AiCodeGeneratorService;
 import com.lyh.codefather.ai.core.parser.CodeParserExecutor;
 import com.lyh.codefather.ai.core.saver.CodeFileSaverExecutor;
@@ -28,7 +29,8 @@ import java.io.File;
 public class AiCodeGeneratorFacade {
 
     @Resource
-    private AiCodeGeneratorService aiCodeGeneratorService;
+    private AiCodeGeneratorFactory aiCodeGeneratorFactory;
+
     /**
      * 统一入口：根据类型生成并保存代码（使用 appId）
      *
@@ -37,6 +39,8 @@ public class AiCodeGeneratorFacade {
      * @return 保存的目录
      */
     public File generateAndSaveCode(String userMessage, CodeGenTypeEnum codeGenTypeEnum, Long appId) {
+
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorFactory.getAiCodeGeneratorService(appId);
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
@@ -64,6 +68,7 @@ public class AiCodeGeneratorFacade {
      * @param appId           应用 ID
      */
     public Flux<String> generateAndSaveCodeStream(String userMessage, CodeGenTypeEnum codeGenTypeEnum, Long appId) {
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorFactory.getAiCodeGeneratorService(appId);
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }

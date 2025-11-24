@@ -1,0 +1,8 @@
+# 文件路径: 项目根目录/docker-compose.yml
+services:
+  redis-stack:
+    image: redis/redis-stack:latest
+    container_name: code-father-redis
+    ports:
+      - "6378:6379"    # 本机6378端口 → 容器6379端口
+      - "32768:8001"   # RedisInsight UI界面

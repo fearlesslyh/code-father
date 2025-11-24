@@ -6,10 +6,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.retry.annotation.EnableRetry;
 
-@SpringBootApplication
 @EnableAspectJAutoProxy(exposeProxy = true)
 @EnableRetry
 @MapperScan("com.lyh.codefather.mapper")
+@SpringBootApplication
+//exclude = {RedisEmbeddingStoreAutoConfiguration.class}
 public class CodeFatherApplication {
     public static void main(String[] args) {
         SpringApplication.run(CodeFatherApplication.class, args);

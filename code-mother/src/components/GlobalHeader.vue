@@ -7,7 +7,7 @@ import { useLoginUserStore } from '@/stores/loginUser';
 import { useThemeStore } from '@/stores/theme';
 import { userLogout } from '@/api/codeMother/userController';
 import type { BaseResponseBoolean } from '@/api/codeMother/typings';
-import { UserOutlined, BulbOutlined, LogoutOutlined, CrownOutlined, SkinOutlined, ApiOutlined } from '@ant-design/icons-vue';
+import { UserOutlined, BulbOutlined, LogoutOutlined, CrownOutlined, SkinOutlined, ApiOutlined, MessageOutlined } from '@ant-design/icons-vue';
 import UserProfileModal from './UserProfileModal.vue';
 
 interface MenuItem {
@@ -43,6 +43,11 @@ const menuItems = computed(() => {
       key: 'admin-apps',
       label: '应用管理',
       path: '/admin/appManager',
+    })
+    baseItems.push({
+      key: 'admin-chats',
+      label: '对话管理',
+      path: '/admin/chatHistoryManager',
     })
   }
   
@@ -135,6 +140,11 @@ const userDropdownItems = computed(() => {
       label: '应用管理',
       icon: () => h(ApiOutlined),
     });
+    baseItems.push({
+      key: 'admin-chats',
+      label: '对话管理',
+      icon: () => h(MessageOutlined),
+    });
   }
 
   baseItems.push({
@@ -170,6 +180,9 @@ const handleUserMenuClick = ({ key }: { key: string }) => {
       break;
     case 'admin-apps':
       router.push('/admin/appManager');
+      break;
+    case 'admin-chats':
+      router.push('/admin/chatHistoryManager');
       break;
   }
 };
@@ -375,6 +388,12 @@ const handleProfileUpdateSuccess = () => {
   background: transparent;
 }
 
+/* 夜间模式导航菜单背景修复 */
+[data-theme='dark'] .nav-menu,
+[data-theme='dark'] .nav-menu :deep(.ant-menu-horizontal) {
+  background: transparent !important;
+}
+
 .nav-menu :deep(.ant-menu-horizontal > .ant-menu-item) {
   margin: 0 24px;
   padding: 0 20px;
@@ -419,20 +438,37 @@ const handleProfileUpdateSuccess = () => {
   border-radius: var(--radius-md);
   transition: all var(--transition-normal);
   position: relative;
+  background: transparent !important;
 }
 
 .nav-menu :deep(.ant-menu-item:hover) {
   color: var(--primary-color);
-  background: var(--primary-light);
+  background: var(--primary-light) !important;
 }
 
 .nav-menu :deep(.ant-menu-item-selected) {
   color: var(--primary-color);
-  background: var(--primary-light);
+  background: var(--primary-light) !important;
 }
 
 .nav-menu :deep(.ant-menu-item::after) {
   display: none;
+}
+
+/* 夜间模式导航菜单项样式 */
+[data-theme='dark'] .nav-menu :deep(.ant-menu-item) {
+  color: rgba(255, 255, 255, 0.85);
+  background: transparent !important;
+}
+
+[data-theme='dark'] .nav-menu :deep(.ant-menu-item:hover) {
+  color: #78dbff;
+  background: rgba(120, 219, 255, 0.15) !important;
+}
+
+[data-theme='dark'] .nav-menu :deep(.ant-menu-item-selected) {
+  color: #78dbff;
+  background: rgba(120, 219, 255, 0.2) !important;
 }
 
 /* 右侧用户区域 */

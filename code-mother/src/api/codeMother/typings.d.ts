@@ -249,3 +249,49 @@ export type serveStaticResourceParams = {
   deployKey: string;
 };
 
+// ChatHistory相关类型定义
+export type ChatHistory = {
+  id?: number;
+  message?: string;
+  messageType?: string;
+  appId?: string;
+  userId?: string;
+  createTime?: string;
+  updateTime?: string;
+  isDelete?: number;
+};
+
+export type ChatHistoryQueryRequest = {
+  pageNum?: number;
+  pageSize?: number;
+  sortField?: string;
+  sortOrder?: string;
+  id?: number;
+  message?: string;
+  messageType?: string;
+  appId?: string;
+  userId?: string;
+  lastCreateTime?: string;
+};
+
+export type listAppChatHistoryParams = {
+  appId: string;
+  pageSize?: number;
+  lastCreateTime?: string;
+};
+
+export type PageChatHistory = {
+  records?: ChatHistory[];
+  pageNumber?: number;
+  pageSize?: number;
+  totalPage?: number;
+  totalRow?: number;
+  optimizeCountQuery?: boolean;
+};
+
+export type BaseResponsePageChatHistory = {
+  code?: number;
+  data?: PageChatHistory;
+  message?: string;
+};
+
