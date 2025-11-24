@@ -2,7 +2,6 @@ package com.lyh.codefather.ai;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.lyh.codefather.ai.memory.SystemFirstChatMemory;
 import com.lyh.codefather.service.ChatHistoryService;
 import dev.langchain4j.community.store.memory.chat.redis.RedisChatMemoryStore;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
@@ -77,7 +76,7 @@ public class AiCodeGeneratorFactory {
     private AiCodeGeneratorService createAiCodeGeneratorService(long appId) {
         log.info("为 appId: {} 创建新的 AI 服务实例", appId);
         // 根据 appId 构建独立的对话记忆，使用自定义的 SystemFirstChatMemory 确保 system 消息在最前面
-        SystemFirstChatMemory chatMemory = SystemFirstChatMemory
+        MessageWindowChatMemory chatMemory = MessageWindowChatMemory
                 .builder()
                 .id(appId)
                 .chatMemoryStore(redisChatMemoryStore)

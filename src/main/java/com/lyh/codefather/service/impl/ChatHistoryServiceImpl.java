@@ -16,6 +16,7 @@ import com.lyh.codefather.model.entity.ChatHistory;
 import com.lyh.codefather.mapper.ChatHistoryMapper;
 import com.lyh.codefather.service.ChatHistoryService;
 import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.ChatMemory;
 import jakarta.annotation.Resource;
@@ -175,6 +176,7 @@ public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatH
             // 先清理历史缓存，防止重复加载
             chatMemory.clear();
             for (ChatHistory history : historyList) {
+                chatMemory.add((ChatMessage) historyList.get(loadedCount));
                 if (ChatHistoryMessageTypeEnum.USER.getValue().equals(history.getMessageType())) {
                     chatMemory.add(UserMessage.from(history.getMessage()));
                     loadedCount++;
