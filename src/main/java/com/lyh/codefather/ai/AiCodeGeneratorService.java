@@ -2,7 +2,9 @@ package com.lyh.codefather.ai;
 
 import com.lyh.codefather.ai.model.MultiHtmlFileCodeResult;
 import com.lyh.codefather.ai.model.SingleHtmlFileCodeResult;
+import dev.langchain4j.service.MemoryId;
 import dev.langchain4j.service.SystemMessage;
+import dev.langchain4j.service.UserMessage;
 import reactor.core.publisher.Flux;
 
 public interface AiCodeGeneratorService {
@@ -45,4 +47,7 @@ public interface AiCodeGeneratorService {
     @SystemMessage(fromResource = "prompt/code-generator-multiFilePrompt.txt")
     Flux<String> generateMultiFileCodeStream(String userMessage);
 
+
+    @SystemMessage(fromResource = "prompt/code-generator-vue-project-prompt.txt")
+    Flux<String> generateVueProjectCodeStream(@MemoryId Long appId, @UserMessage String userMessage);
 }
