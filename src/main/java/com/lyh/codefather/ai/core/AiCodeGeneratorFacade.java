@@ -1,5 +1,6 @@
 package com.lyh.codefather.ai.core;
 
+import cn.hutool.json.JSONUtil;
 import com.lyh.codefather.ai.AiCodeGeneratorFactory;
 import com.lyh.codefather.ai.AiCodeGeneratorService;
 import com.lyh.codefather.ai.core.parser.CodeParserExecutor;
@@ -7,8 +8,15 @@ import com.lyh.codefather.ai.core.saver.CodeFileSaverExecutor;
 import com.lyh.codefather.ai.model.MultiHtmlFileCodeResult;
 import com.lyh.codefather.ai.model.SingleHtmlFileCodeResult;
 import com.lyh.codefather.ai.model.enums.CodeGenTypeEnum;
+import com.lyh.codefather.ai.model.message.AiResponseMessage;
+import com.lyh.codefather.ai.model.message.ToolExecutedMessage;
+import com.lyh.codefather.ai.model.message.ToolRequestMessage;
 import com.lyh.codefather.exception.BusinessException;
 import com.lyh.codefather.exception.ErrorCode;
+import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.service.TokenStream;
+import dev.langchain4j.service.tool.BeforeToolExecution;
+import dev.langchain4j.service.tool.ToolExecution;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -119,5 +127,37 @@ public class AiCodeGeneratorFacade {
             }
         });
     }
+
+    /**
+     * 将 TokenStream 转换为 Flux<String>，并传递工具调用信息
+     *
+     * @param tokenStream TokenStream 对象
+     * @return Flux<String> 流式响应
+     */
+    private Flux<String> processTokenStream(TokenStream tokenStream) {
+        return Flux.create(sink -> {
+            tokenStream.onPartialResponse((String partialResponse) -> {
+                        AiResponseMessage aiResponseMessage = new AiResponseMessage(partialResponse);
+                        sink.next(JSONUtil.toJsonStr(aiResponseMessage));
+                    })
+                    .beforeToolExecution((BeforeToolExecution beforeToolExecution ) ->{
+                        //调用工具之前获取工具的信息，用于前端展示
+                        sink.next(JSONUtil.toJsonStr(beforeToolExecution));
+                    })
+                    .onToolExecuted((ToolExecution toolExecution) -> {
+                        ToolExecutedMessage toolExecutedMessage = new ToolExecutedMessage(toolExecution);
+                        sink.next(JSONUtil.toJsonStr(toolExecutedMessage));
+                    })
+                    .onCompleteResponse((ChatResponse response) -> {
+                        sink.complete();
+                    })
+                    .onError((Throwable error) -> {
+                        error.printStackTrace();
+                        sink.error(error);
+                    })
+                    .start();
+        });
+    }
+
 
 }
