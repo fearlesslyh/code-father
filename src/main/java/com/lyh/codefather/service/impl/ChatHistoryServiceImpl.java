@@ -16,9 +16,8 @@ import com.lyh.codefather.model.entity.ChatHistory;
 import com.lyh.codefather.mapper.ChatHistoryMapper;
 import com.lyh.codefather.service.ChatHistoryService;
 import dev.langchain4j.data.message.AiMessage;
-import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.memory.ChatMemory;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -158,7 +157,7 @@ public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatH
      * @return 加载的记录数
      */
     @Override
-    public int loadChatHistoryToMemory(Long appId, ChatMemory chatMemory, int maxCount) {
+    public int loadChatHistoryToMemory(Long appId, MessageWindowChatMemory chatMemory, int maxCount) {
         try {
             // 直接构造查询条件，起始点为 1 而不是 0，用于排除最新的用户消息
             QueryWrapper queryWrapper = QueryWrapper.create()
@@ -176,7 +175,6 @@ public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatH
             // 先清理历史缓存，防止重复加载
             chatMemory.clear();
             for (ChatHistory history : historyList) {
-                chatMemory.add((ChatMessage) historyList.get(loadedCount));
                 if (ChatHistoryMessageTypeEnum.USER.getValue().equals(history.getMessageType())) {
                     chatMemory.add(UserMessage.from(history.getMessage()));
                     loadedCount++;

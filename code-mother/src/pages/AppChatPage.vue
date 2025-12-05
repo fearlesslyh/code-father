@@ -18,6 +18,7 @@ import type {
 } from '@/api/codeMother/typings'
 import { SendOutlined, DeploymentUnitOutlined, LoadingOutlined, ArrowLeftOutlined, RobotOutlined, InfoCircleOutlined, EditOutlined, DeleteOutlined, CheckCircleOutlined, CopyOutlined, CloseOutlined, StopOutlined, PoweroffOutlined } from '@ant-design/icons-vue'
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
+import { getStaticPreviewUrl } from '@/constants/codeGenType'
 
 const route = useRoute()
 const router = useRouter()
@@ -144,8 +145,7 @@ const fetchAppInfo = async () => {
       if (messages.value.length >= 2) {
         showPreview.value = true
         const codeGenType = appInfo.value.codeGenType || 'html'
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api'
-        previewUrl.value = `${apiBaseUrl}/static/${codeGenType}_${appId.value}/`
+        previewUrl.value = getStaticPreviewUrl(codeGenType, appId.value)
       }
     } else {
       message.error('获取应用信息失败')
@@ -234,8 +234,7 @@ const sendMessageToAI = async (messageContent: string) => {
       // 显示预览
       showPreview.value = true
       const codeGenType = appInfo.value?.codeGenType || 'html'
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api'
-      previewUrl.value = `${apiBaseUrl}/static/${codeGenType}_${appId.value}/`
+      previewUrl.value = getStaticPreviewUrl(codeGenType, appId.value)
       
       // 更新应用信息（获取最新版本号等）
       await fetchAppInfo()

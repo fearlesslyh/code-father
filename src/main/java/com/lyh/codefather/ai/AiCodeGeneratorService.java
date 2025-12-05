@@ -49,5 +49,5 @@ public interface AiCodeGeneratorService {
 
 
     @SystemMessage(fromResource = "prompt/code-generator-vue-project-prompt.txt")
-    Flux<String> generateVueProjectCodeStream(@MemoryId Long appId, @UserMessage String userMessage);
+    Flux<String> generateVueProjectCodeStream(@UserMessage String userMessage);
 }
