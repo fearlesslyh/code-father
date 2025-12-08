@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
 
+import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
+
 @Slf4j
 public class ProjectBuilderNode {
     public static AsyncNodeAction<MessagesState<String>> create() {
