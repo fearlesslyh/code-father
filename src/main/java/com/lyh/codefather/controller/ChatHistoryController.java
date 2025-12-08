@@ -7,19 +7,17 @@ import com.lyh.codefather.constant.UserConstant;
 import com.lyh.codefather.exception.ErrorCode;
 import com.lyh.codefather.exception.ThrowUtils;
 import com.lyh.codefather.model.dto.chathistory.ChatHistoryQueryRequest;
+import com.lyh.codefather.model.entity.ChatHistory;
 import com.lyh.codefather.model.entity.User;
+import com.lyh.codefather.service.ChatHistoryService;
 import com.lyh.codefather.service.UserService;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.lyh.codefather.model.entity.ChatHistory;
-import com.lyh.codefather.service.ChatHistoryService;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 对话历史 控制层。

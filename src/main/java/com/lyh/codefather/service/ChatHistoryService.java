@@ -1,11 +1,11 @@
 package com.lyh.codefather.service;
 
 import com.lyh.codefather.model.dto.chathistory.ChatHistoryQueryRequest;
+import com.lyh.codefather.model.entity.ChatHistory;
 import com.lyh.codefather.model.entity.User;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
-import com.lyh.codefather.model.entity.ChatHistory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 
 import java.time.LocalDateTime;

@@ -2,10 +2,8 @@ package com.lyh.codefather.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
-import com.lyh.codefather.ai.AiCodeGeneratorService;
 import com.lyh.codefather.ai.core.AiCodeGeneratorFacade;
 import com.lyh.codefather.ai.core.builder.VueProjectBuilder;
 import com.lyh.codefather.ai.core.handler.StreamHandlerExecutor;
@@ -27,16 +25,18 @@ import com.lyh.codefather.service.ChatHistoryService;
 import com.lyh.codefather.service.UserService;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import jakarta.annotation.Resource;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

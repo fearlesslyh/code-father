@@ -2,7 +2,6 @@ package com.lyh.codefather.ai;
 
 import com.lyh.codefather.ai.model.MultiHtmlFileCodeResult;
 import com.lyh.codefather.ai.model.SingleHtmlFileCodeResult;
-import dev.langchain4j.service.MemoryId;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import reactor.core.publisher.Flux;

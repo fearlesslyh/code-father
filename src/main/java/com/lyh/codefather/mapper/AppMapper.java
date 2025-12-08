@@ -1,7 +1,7 @@
 package com.lyh.codefather.mapper;
 
-import com.mybatisflex.core.BaseMapper;
 import com.lyh.codefather.model.entity.App;
+import com.mybatisflex.core.BaseMapper;
 
 /**
  * 应用 映射层。

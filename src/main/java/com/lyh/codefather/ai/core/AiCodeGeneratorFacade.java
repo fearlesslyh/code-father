@@ -10,7 +10,6 @@ import com.lyh.codefather.ai.model.SingleHtmlFileCodeResult;
 import com.lyh.codefather.ai.model.enums.CodeGenTypeEnum;
 import com.lyh.codefather.ai.model.message.AiResponseMessage;
 import com.lyh.codefather.ai.model.message.ToolExecutedMessage;
-import com.lyh.codefather.ai.model.message.ToolRequestMessage;
 import com.lyh.codefather.exception.BusinessException;
 import com.lyh.codefather.exception.ErrorCode;
 import dev.langchain4j.model.chat.response.ChatResponse;
@@ -159,6 +158,4 @@ public class AiCodeGeneratorFacade {
                     .start();
         });
     }
-
-
 }

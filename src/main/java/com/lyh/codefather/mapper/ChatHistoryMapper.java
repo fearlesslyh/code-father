@@ -1,7 +1,7 @@
 package com.lyh.codefather.mapper;
 
-import com.mybatisflex.core.BaseMapper;
 import com.lyh.codefather.model.entity.ChatHistory;
+import com.mybatisflex.core.BaseMapper;
 
 /**
  * 对话历史 映射层。

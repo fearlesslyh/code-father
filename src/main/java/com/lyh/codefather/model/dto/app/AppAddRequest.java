@@ -1,6 +1,5 @@
 package com.lyh.codefather.model.dto.app;
 
-import com.lyh.codefather.constant.AppConstant;
 import lombok.Data;
 
 import java.io.Serializable;
