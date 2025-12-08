@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import com.lyh.codefather.ai.AiCodeGenTypeRoutingService;
 import com.lyh.codefather.ai.core.AiCodeGeneratorFacade;
 import com.lyh.codefather.ai.core.builder.VueProjectBuilder;
 import com.lyh.codefather.ai.core.handler.StreamHandlerExecutor;
@@ -22,6 +23,7 @@ import com.lyh.codefather.model.vo.AppVO;
 import com.lyh.codefather.model.vo.UserVO;
 import com.lyh.codefather.service.AppService;
 import com.lyh.codefather.service.ChatHistoryService;
+import com.lyh.codefather.service.ScreenshotService;
 import com.lyh.codefather.service.UserService;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
@@ -32,7 +34,6 @@ import reactor.core.publisher.Flux;
 
 import java.io.File;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,43 +65,31 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     @Resource
     private VueProjectBuilder vueProjectBuilder;
 
-    /**
-     * 创建应用
-     *
-     * @param appAddRequest 应用创建请求
-     * @param userId        创建用户ID
-     * @return 应用ID
-     */
+    @Resource
+    private ScreenshotService screenshotService;
+    @Resource
+    private AiCodeGenTypeRoutingService aiCodeGenTypeRoutingService;
     @Override
-    public long createApp(AppAddRequest appAddRequest, long userId) {
+    public Long createApp(AppAddRequest appAddRequest, User loginUser) {
         // 参数校验
-        ThrowUtils.throwIf(appAddRequest == null, ErrorCode.PARAMS_ERROR);
         String initPrompt = appAddRequest.getInitPrompt();
-        ThrowUtils.throwIf(StrUtil.isBlank(initPrompt), ErrorCode.PARAMS_ERROR, "初始化提示词不能为空");
-
-
-        // 检查用户是否存在
-        User user = userService.getById(userId);
-        ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在");
-
-        // 创建应用
+        ThrowUtils.throwIf(StrUtil.isBlank(initPrompt), ErrorCode.PARAMS_ERROR, "初始化 prompt 不能为空");
+        // 构造入库对象
         App app = new App();
-        // 自动生成应用名称（取提示词前12位）
-        String appName = initPrompt.length() > 12 ? initPrompt.substring(0, 12) : initPrompt;
-        app.setAppName(appName);
-        app.setInitPrompt(initPrompt);
-        // 设置默认的代码生成类型
-        app.setUserId(userId);
-        app.setCreateTime(LocalDateTime.now());
-        app.setUpdateTime(LocalDateTime.now());
-        app.setEditTime(LocalDateTime.now());
-
-        // 保存应用
-        boolean saveResult = this.save(app);
-        ThrowUtils.throwIf(!saveResult, ErrorCode.OPERATION_ERROR, "创建应用失败");
-
+        BeanUtil.copyProperties(appAddRequest, app);
+        app.setUserId(loginUser.getId());
+        // 应用名称暂时为 initPrompt 前 12 位
+        app.setAppName(initPrompt.substring(0, Math.min(initPrompt.length(), 12)));
+        // 使用 AI 智能选择代码生成类型
+        CodeGenTypeEnum selectedCodeGenType = aiCodeGenTypeRoutingService.routeCodeGenType(initPrompt);
+        app.setCodeGenType(selectedCodeGenType.getValue());
+        // 插入数据库
+        boolean result = this.save(app);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        log.info("应用创建成功，ID: {}, 类型: {}", app.getId(), selectedCodeGenType.getValue());
         return app.getId();
     }
+
 
     /**
      * 获取应用VO
@@ -266,10 +255,15 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
             sourceDir = distDir;
             log.info("Vue 项目构建成功，将部署 dist 目录: {}", distDir.getAbsolutePath());
         }
-// 8. 复制文件到部署目录
+        // 8. 复制文件到部署目录
         String deployDirPath = AppConstant.CODE_DEPLOY_ROOT_DIR + File.separator + deployKey;
         // 9.返回部署地址
-        return String.format("%s/%s", AppConstant.CODE_DEPLOY_HOST, deployKey);
+        // 10. 构建应用访问 URL
+        String appDeployUrl = String.format("%s/%s/", AppConstant.CODE_DEPLOY_HOST, deployKey);
+        // 11. 异步生成截图并更新应用封面
+        generateAppScreenshotAsync(appId, appDeployUrl);
+        return appDeployUrl;
+
     }
 
     /**
@@ -297,6 +291,27 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         }
         // 删除应用
         return super.removeById(id);
+    }
+
+    /**
+     * 异步生成应用截图并更新封面
+     *
+     * @param appId  应用ID
+     * @param appUrl 应用访问URL
+     */
+    @Override
+    public void generateAppScreenshotAsync(Long appId, String appUrl) {
+        // 使用虚拟线程异步执行
+        Thread.startVirtualThread(() -> {
+            // 调用截图服务生成截图并上传
+            String screenshotUrl = screenshotService.generateAndUploadScreenshot(appUrl);
+            // 更新应用封面字段
+            App updateApp = new App();
+            updateApp.setId(appId);
+            updateApp.setCover(screenshotUrl);
+            boolean updated = this.updateById(updateApp);
+            ThrowUtils.throwIf(!updated, ErrorCode.OPERATION_ERROR, "更新应用封面字段失败");
+        });
     }
 
 }

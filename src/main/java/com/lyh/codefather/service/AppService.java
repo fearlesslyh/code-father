@@ -19,15 +19,9 @@ import java.util.List;
  */
 public interface AppService extends IService<App> {
 
-    /**
-     * 创建应用
-     *
-     * @param appAddRequest 应用创建请求
-     * @param userId        创建用户ID
-     * @return 应用ID
-     */
-    long createApp(AppAddRequest appAddRequest, long userId);
 
+
+    Long createApp(AppAddRequest appAddRequest, User loginUser);
 
     /**
      * 获取应用视图对象
@@ -56,4 +50,6 @@ public interface AppService extends IService<App> {
     Flux<String> chatToGenCode(Long appId, String message, User loginUser);
 
     String deployApp(Long appId, User loginUser);
+
+    void generateAppScreenshotAsync(Long appId, String appUrl);
 }
