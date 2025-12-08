@@ -7,7 +7,8 @@ import { useLoginUserStore } from '@/stores/loginUser'
 import { 
   getAppVoById, 
   deployApp,
-  deleteApp
+  deleteApp,
+  downloadAppCode
 } from '@/api/codeMother/appController'
 import { listAppChatHistory } from '@/api/codeMother/chatHistoryController'
 import type { 
@@ -16,7 +17,7 @@ import type {
   DeleteRequest,
   ChatHistory
 } from '@/api/codeMother/typings'
-import { SendOutlined, DeploymentUnitOutlined, LoadingOutlined, ArrowLeftOutlined, RobotOutlined, InfoCircleOutlined, EditOutlined, DeleteOutlined, CheckCircleOutlined, CopyOutlined, CloseOutlined, StopOutlined, PoweroffOutlined } from '@ant-design/icons-vue'
+import { SendOutlined, DeploymentUnitOutlined, LoadingOutlined, ArrowLeftOutlined, RobotOutlined, InfoCircleOutlined, EditOutlined, DeleteOutlined, CheckCircleOutlined, CopyOutlined, CloseOutlined, StopOutlined, PoweroffOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
 import { getStaticPreviewUrl } from '@/constants/codeGenType'
 
@@ -55,6 +56,9 @@ const appDetailModalVisible = ref(false)
 // 部署成功模态框
 const deploySuccessModalVisible = ref(false)
 const deploySuccessUrl = ref('')
+
+// 下载代码相关
+const isDownloading = ref(false)
 
 // 生成状态
 const generationStatus = ref<'idle' | 'generating' | 'completed' | 'failed'>('idle')
@@ -330,6 +334,54 @@ const deployApplication = async () => {
   }
 }
 
+// 下载应用代码
+const downloadApplicationCode = async () => {
+  if (!appInfo.value) return
+  
+  try {
+    isDownloading.value = true
+    
+    const response = await downloadAppCode({
+      appId: Number(appId.value)
+    })
+    
+    // 从响应头获取文件名
+    const contentDisposition = response.headers?.['content-disposition'] || response.headers?.['Content-Disposition'] || ''
+    let filename = `${appInfo.value.appName || 'app'}_${appId.value}.zip`
+    
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
+      if (filenameMatch && filenameMatch[1]) {
+        filename = filenameMatch[1].replace(/['"]/g, '')
+        // 处理 URL 编码的文件名
+        try {
+          filename = decodeURIComponent(filename)
+        } catch {
+          // 如果解码失败，使用原始文件名
+        }
+      }
+    }
+    
+    // 创建下载链接
+    const blob = response.data
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    
+    message.success('代码下载成功')
+  } catch (error) {
+    console.error('下载代码失败:', error)
+    message.error('下载代码失败')
+  } finally {
+    isDownloading.value = false
+  }
+}
+
 // 取消部署（下线应用）
 const undeployApplication = async () => {
   if (!appInfo.value) return
@@ -454,6 +506,16 @@ onUnmounted(() => {
               <InfoCircleOutlined />
             </template>
             应用详情
+          </a-button>
+          <a-button
+            :loading="isDownloading"
+            @click="downloadApplicationCode"
+            v-if="showPreview"
+          >
+            <template #icon>
+              <DownloadOutlined />
+            </template>
+            下载代码
           </a-button>
           <a-button
             type="primary"

@@ -14,6 +14,7 @@ import type {
   chatToGenCodeParams,
   getAppVOByIdByAdminParams,
   getAppVOByIdParams,
+  downloadAppCodeParams,
   DeleteRequest,
   ServerSentEventString
 } from './typings';
@@ -174,6 +175,25 @@ export async function deployApp(body: AppDeployRequest,
     data: body,
     ...(options || {}),
   });
+}
+
+/**
+ * 下载应用代码
+ * @param params
+ * @param options
+ * @returns
+ */
+export async function downloadAppCode(
+  params: downloadAppCodeParams,
+  options ?: OpenApiGeneratorOptions
+) {
+  const response = await request<{ data: Blob; headers: any }>({
+    url: `/app/download/${params.appId}`,
+    method: 'GET',
+    responseType: 'blob',
+    ...(options || {}),
+  });
+  return response;
 }
 
 /**

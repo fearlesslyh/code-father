@@ -94,9 +94,33 @@ const createHttpClient = (): AxiosInstance => {
   );
 
   instance.interceptors.response.use(
-    (response: AxiosResponse) => transformResponse(response),
-    (error: AxiosError<ApiErrorResponse>) => {
+    (response: AxiosResponse) => {
+      // 如果是 blob 响应，直接返回 blob 数据和响应头（用于获取文件名）
+      if (response.config.responseType === 'blob') {
+        return {
+          data: response.data,
+          headers: response.headers,
+        };
+      }
+      return transformResponse(response);
+    },
+    async (error: AxiosError<ApiErrorResponse>) => {
       if (error.response) {
+        // 如果是 blob 响应且出错，尝试解析错误信息
+        if (error.config?.responseType === 'blob' && error.response.data instanceof Blob) {
+          try {
+            const text = await error.response.data.text();
+            const errorData = JSON.parse(text);
+            if (errorData.code && AUTH_ERROR_CODES.has(errorData.code)) {
+              handleAuthFailure();
+            } else {
+              message.error(errorData.message || '下载失败');
+            }
+          } catch {
+            message.error('下载失败');
+          }
+          return Promise.reject(error);
+        }
         const { code, message: serverMessage } = error.response.data ?? {};
         if (code && AUTH_ERROR_CODES.has(code)) {
           handleAuthFailure();

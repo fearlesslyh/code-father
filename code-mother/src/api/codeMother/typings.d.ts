@@ -185,6 +185,10 @@ export type AppQueryRequest = {
   tags?: string[]; // 标签数组
 };
 
+export type downloadAppCodeParams = {
+  appId: number;
+};
+
 export type AppUpdateRequest = {
   id?: string;
   appName?: string;
