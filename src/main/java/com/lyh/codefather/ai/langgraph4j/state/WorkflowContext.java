@@ -1,5 +1,7 @@
 package com.lyh.codefather.ai.langgraph4j.state;
 
+import com.lyh.codefather.ai.langgraph4j.model.ImageCollectionPlan;
+import com.lyh.codefather.ai.langgraph4j.model.QualityResult;
 import com.lyh.codefather.ai.model.enums.CodeGenTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -71,6 +73,23 @@ public class WorkflowContext implements Serializable {
      */
     private String errorMessage;
 
+    /**
+     * 质量检查结果
+     */
+    private QualityResult qualityResult;
+    /**
+     * 图片收集计划
+     */
+    private ImageCollectionPlan imageCollectionPlan;
+
+
+    /**
+     * 并发图片收集的中间结果字段
+     */
+    private List<ImageResource> contentImages;
+    private List<ImageResource> illustrations;
+    private List<ImageResource> diagrams;
+    private List<ImageResource> logos;
 
     @Serial
     private static final long serialVersionUID = 1L;
