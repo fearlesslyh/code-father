@@ -16,7 +16,9 @@ public enum ErrorCode {
     NOT_FOUND_ERROR(10003, "请求数据不存在"),
     FORBIDDEN_ERROR(10004, "禁止访问"),
     SYSTEM_ERROR(10005, "系统内部异常"),
-    OPERATION_ERROR(10006, "操作失败");
+    OPERATION_ERROR(10006, "操作失败"),
+    TOO_MANY_REQUEST(42900, "请求过于频繁");
+
 
     private final int code;
     private final String message;

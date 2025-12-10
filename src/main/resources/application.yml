@@ -14,6 +14,7 @@ spring:
       host: localhost
       port: 6378
       ttl: 3600
+      password: ""
   session:
     store-type: redis
     timeout: 2592000
@@ -56,3 +57,41 @@ dashscope:
   api-key: <Your API Key>
   image-model: wan2.2-t2i-flash
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
+# Prometheus 配置文件
+global:
+  scrape_interval: 15s      # 全局抓取间隔
+  evaluation_interval: 15s  # 规则评估间隔
+
+# 告警管理器配置 (可选)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# 规则文件配置
+rule_files:
+# - "alert_rules.yml"  # 可以添加告警规则
+
+# 抓取配置
+scrape_configs:
+  # Prometheus 自身监控
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: [ 'localhost:9090' ]
+
+  # Spring Boot 应用监控
+  - job_name: 'yu-ai-code-mother'
+    metrics_path: '/api/actuator/prometheus'  # Spring Boot Actuator 端点
+    static_configs:
+      - targets: [ 'localhost:8123' ]  # 应用服务器地址
+    scrape_interval: 10s  # 每 10 秒抓取一次
+    scrape_timeout: 10s   # 抓取超时时间

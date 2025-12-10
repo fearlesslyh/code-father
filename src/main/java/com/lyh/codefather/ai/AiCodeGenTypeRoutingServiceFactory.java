@@ -16,8 +16,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AiCodeGenTypeRoutingServiceFactory {
 
-    @Resource
-    private ChatModel chatModel;
+@Resource(name = "openAiChatModel")
+private ChatModel chatModel;
+
 
     /**
      * 创建AI代码生成类型路由服务实例
